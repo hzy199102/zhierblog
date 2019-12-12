@@ -1,2 +1,2 @@
 # gitskills
-AND &&  AND AND
+AND &&1  AND AND
