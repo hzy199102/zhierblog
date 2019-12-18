@@ -1,2 +1,3 @@
 # gitskills
-AND &&1  AND AND
+AND &&  AND
+branch dev update
