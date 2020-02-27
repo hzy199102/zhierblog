@@ -1,6 +1,6 @@
 # foo-one
 
-这是止耳的技术博客
+这是止耳的技术博客，我爱 vuepress
 [Home](/) <!-- 跳转到根部的 README.md -->
 [foo](/foo/) <!-- 跳转到 foo 文件夹的 index.html -->
 [foo heading](./#heading) <!-- 跳转到 foo/index.html 的特定标题位置 -->
