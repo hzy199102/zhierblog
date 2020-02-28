@@ -1,7 +1,8 @@
 module.exports = {
+  base: "/vuepress/",
   title: "zhierblog",
   description: "这是止耳的vuepress博客",
-  base: "/vuepress/",
+  head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   configureWebpack: {
     resolve: {
       alias: {
