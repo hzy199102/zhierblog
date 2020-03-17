@@ -23,6 +23,20 @@ module.exports = {
     lineNumbers: true,
     extractHeaders: ["h2", "h3", "h4"]
   },
+  themeConfig: {
+    logo: "./public/zhier.jpg",
+    nav: require("./nav/zh"),
+    sidebar: {
+      "/api/": getApiSidebar(),
+      "/guide/": getGuideSidebar("Guide", "Advanced"),
+      "/plugin/": getPluginSidebar(
+        "Plugin",
+        "Introduction",
+        "Official Plugins"
+      ),
+      "/theme/": getThemeSidebar("Theme", "Introduction")
+    }
+  },
   plugins: [
     // 你可以多次使用这个插件
     [
