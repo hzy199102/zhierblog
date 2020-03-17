@@ -1,4 +1,4 @@
-# VuePress 在 Jenkins 上部署的配置
+# zhierblog 的配置
 
 ## General
 

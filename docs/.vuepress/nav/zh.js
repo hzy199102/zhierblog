@@ -29,7 +29,7 @@ module.exports = [
       },
       {
         text: "http",
-        link: "http://localhost:8082/vuepress/"
+        link: "http://101.200.192.219:2227/vuepress/"
       }
     ]
   }
