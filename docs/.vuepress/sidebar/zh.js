@@ -39,6 +39,7 @@ module.exports = {
     {
       title: "interview——CSS篇",
       collapsable: false,
+      sidebarDepth: 2,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/css")
       })
@@ -48,10 +49,20 @@ module.exports = {
     {
       title: "interview——nodejs篇",
       collapsable: false,
+      sidebarDepth: 2,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/nodejs")
       })
       // children: [["", "介绍"]]
+    }
+  ],
+  "/interview/vuepress/": [
+    {
+      title: "interview——vuepress篇",
+      collapsable: false,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/vuepress")
+      })
     }
   ]
 };

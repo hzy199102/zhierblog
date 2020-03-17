@@ -5,7 +5,7 @@ module.exports = [
   },
   {
     text: "interview",
-    ariaLabel: "interview2",
+    ariaLabel: "interview",
     items: [
       {
         text: "nodejs",
@@ -14,6 +14,10 @@ module.exports = [
       {
         text: "css",
         link: "/interview/css/"
+      },
+      {
+        text: "vuepress",
+        link: "/interview/vuepress/"
       }
     ]
   },
