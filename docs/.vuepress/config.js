@@ -26,6 +26,7 @@ module.exports = {
   themeConfig: {
     logo: "/zhier.jpg",
     lastUpdated: "Last Updated",
+    smoothScroll: true,
     nav: require("./nav/zh"),
     sidebar: require("./sidebar/zh")
   },
