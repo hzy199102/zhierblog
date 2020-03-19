@@ -22,6 +22,10 @@ module.exports = [
     ]
   },
   {
+    text: "日记",
+    link: "/diary/"
+  },
+  {
     text: "友情链接",
     ariaLabel: "友情链接2",
     items: [

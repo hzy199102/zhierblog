@@ -24,8 +24,24 @@ function getSideBar(obj) {
     })
     .sort();
 }
+/**
+ * 生成日记侧边栏
+ * @param {*} obj 整体侧边栏目录结构
+ * @param {*} Catalog 制定的目录下的内容生成侧边栏目录，用于插入整体的侧边栏目录，这个目录必须是根目录下的二级目录
+ */
+function getDiarySideBar(obj, Catalog) {
+  var yearCatalog = fs
+    .readdirSync(path.resolve(__dirname, "../../" + Catalog))
+    .map(filename => {
+      return filename;
+    })
+    .sort();
+  console.log(yearCatalog);
+}
 
-module.exports = {
+// getDiarySideBar("", "diary");
+
+var obj = {
   "/jenkins/": [
     {
       title: "jenkins配置",
@@ -66,3 +82,5 @@ module.exports = {
     }
   ]
 };
+
+module.exports = obj;
