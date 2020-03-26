@@ -22,6 +22,10 @@ module.exports = [
     ]
   },
   {
+    text: "接口",
+    link: "/api/"
+  },
+  {
     text: "日记",
     link: "/diary/"
   },

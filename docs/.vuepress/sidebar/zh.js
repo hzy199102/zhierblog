@@ -51,6 +51,16 @@ var obj = {
       // children: [["", "介绍"], "vuepress"]
     }
   ],
+  "/api/": [
+    {
+      title: "接口",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../api")
+      })
+    }
+  ],
   "/interview/css/": [
     {
       title: "interview——CSS篇",
