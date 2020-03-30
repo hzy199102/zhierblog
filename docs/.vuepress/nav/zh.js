@@ -26,8 +26,14 @@ module.exports = [
     link: "/api/"
   },
   {
-    text: "日记",
-    link: "/diary/"
+    text: "日常",
+    ariaLabel: "daily",
+    items: [
+      {
+        text: "2020",
+        link: "/daily/2020/"
+      }
+    ]
   },
   {
     text: "友情链接",

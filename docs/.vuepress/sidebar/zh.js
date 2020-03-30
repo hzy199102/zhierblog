@@ -29,14 +29,17 @@ function getSideBar(obj) {
  * @param {*} obj 整体侧边栏目录结构
  * @param {*} Catalog 制定的目录下的内容生成侧边栏目录，用于插入整体的侧边栏目录，这个目录必须是根目录下的二级目录
  */
-function getDiarySideBar(obj, Catalog) {
-  var yearCatalog = fs
-    .readdirSync(path.resolve(__dirname, "../../" + Catalog))
+function getDiarySideBar(obj) {
+  return fs
+    .readdirSync(obj.path)
     .map(filename => {
-      return filename;
+      if (filename === "README.md") {
+        return ["", "介绍"];
+      }
+      console.log(filename);
+      return filename.slice(0, -3);
     })
     .sort();
-  console.log(yearCatalog);
 }
 
 // getDiarySideBar("", "diary");
@@ -49,6 +52,16 @@ var obj = {
       sidebarDepth: 2,
       children: jenkinsSideBar
       // children: [["", "介绍"], "vuepress"]
+    }
+  ],
+  "/daily/2020/": [
+    {
+      title: "2020",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../daily/2020")
+      })
     }
   ],
   "/api/": [
