@@ -26,11 +26,11 @@
 
 - 返回结果
 
-## 文章列表
+## 栏目
 
 - URL
 
-`get /portal/article/list`
+`get /portal/category/list`
 
 - 请求头
 
@@ -45,6 +45,29 @@
 |  page  |    否    |   Number   | 页码，从 0 开始                              |
 | count  |    否    |   Number   | 每页显示条数                                 |
 |  sort  |    否    | JSONString | 0：倒序；1：正序<li>createdAt：创建时间</li> |
-| filter |    否    | JSONString | <li>category：栏目</li>                      |
+| filter |    否    | JSONString | <li>parent：父节点 ID</li>                   |
+
+- 返回结果
+
+## 文章列表
+
+- URL
+
+`get /portal/article/list`
+
+- 请求头
+
+|    参数名     | 是否必选 |  类型  | 描述                                                                      |
+| :-----------: | :------: | :----: | :------------------------------------------------------------------------ |
+| Authorization |    是    | String | <li>产品 pcode 的 base64 编码</li><li>gid_pcode_token 的 base64 编码</li> |
+
+- 参数说明
+
+| 参数名 | 是否必选 |    类型    | 描述                                                                            |
+| :----: | :------: | :--------: | :------------------------------------------------------------------------------ |
+|  page  |    否    |   Number   | 页码，从 0 开始                                                                 |
+| count  |    否    |   Number   | 每页显示条数                                                                    |
+|  sort  |    否    | JSONString | 0：倒序；1：正序<li>createdAt：创建时间</li>                                    |
+| filter |    否    | JSONString | <li>category：栏目，注意，可以取到这个栏目节点下的各级节点对应的所有文章。</li> |
 
 - 返回结果
