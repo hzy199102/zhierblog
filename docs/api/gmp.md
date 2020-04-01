@@ -6,6 +6,13 @@
 - 测试环境地址：http://aecore-test.glodon.com/ops
 - 生产环境地址：https://aecore.glodon.com/ops
 
+::: tip
+
+- POST 请求体是 JSONOBJECT
+- GET 请求需要`encodeURIComponent`处理参数
+
+:::
+
 ## 登录
 
 - URL
@@ -30,7 +37,7 @@
 
 - URL
 
-`get /portal/category/list`
+`GET /portal/category/list`
 
 - 请求头
 
@@ -53,7 +60,7 @@
 
 - URL
 
-`get /portal/article/list`
+`GET /portal/article/list`
 
 - 请求头
 
@@ -63,11 +70,33 @@
 
 - 参数说明
 
-| 参数名 | 是否必选 |    类型    | 描述                                                                            |
-| :----: | :------: | :--------: | :------------------------------------------------------------------------------ |
-|  page  |    否    |   Number   | 页码，从 0 开始                                                                 |
-| count  |    否    |   Number   | 每页显示条数                                                                    |
-|  sort  |    否    | JSONString | 0：倒序；1：正序<li>createdAt：创建时间</li>                                    |
-| filter |    否    | JSONString | <li>category：栏目，注意，可以取到这个栏目节点下的各级节点对应的所有文章。</li> |
+| 参数名 | 是否必选 |    类型    | 描述                                                                                                                                                                  |
+| :----: | :------: | :--------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  page  |    否    |   Number   | 页码，从 0 开始                                                                                                                                                       |
+| count  |    否    |   Number   | 每页显示条数                                                                                                                                                          |
+|  sort  |    否    | JSONString | 0：倒序；1：正序<li>createdAt：创建时间</li>                                                                                                                          |
+| filter |    否    | JSONString | 1.category：栏目 ID<br><li>["A","B"]: 这种方式不取栏目 A，B 下的子孙分类的文章</li><li>"A"：A 子孙下的所有文章</li><li>{"eq":["A","B"]}:同时属于栏目 A，B 的文章</li> |
+
+- 返回结果
+
+## 文章上报
+
+- URL
+
+`POST /portal/article/{action}`
+
+- 请求头
+
+|    参数名     | 是否必选 |  类型  | 描述                                    |
+| :-----------: | :------: | :----: | :-------------------------------------- |
+| Authorization |    是    | String | <li>gid_pcode_token 的 base64 编码</li> |
+
+- 参数说明
+
+|   参数名   | 是否必选 |  类型  | 描述                                             |
+| :--------: | :------: | :----: | :----------------------------------------------- |
+|   action   |    是    | String | 行为，拼接在 url 上的参数<br><li>read：已读</li> |
+|   target   |    是    | String | 文章 ID                                          |
+| targetName |    是    | String | 文章标题                                         |
 
 - 返回结果
