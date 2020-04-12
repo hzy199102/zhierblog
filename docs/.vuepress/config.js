@@ -58,6 +58,17 @@ module.exports = {
           "/zh/": "提示"
         }
       }
+    ],
+    [
+      "vuepress-plugin-zooming",
+      {
+        // selector: ".my-wrapper .my-img",
+        delay: 1000,
+        options: {
+          bgColor: "black",
+          zIndex: 10000
+        }
+      }
     ]
   ]
 };

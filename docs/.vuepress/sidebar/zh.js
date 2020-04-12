@@ -54,6 +54,16 @@ var obj = {
       // children: [["", "介绍"], "vuepress"]
     }
   ],
+  "/docker/": [
+    {
+      title: "docker配置",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../docker")
+      })
+    }
+  ],
   "/daily/2020/": [
     {
       title: "2020",

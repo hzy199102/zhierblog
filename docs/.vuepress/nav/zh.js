@@ -1,7 +1,17 @@
 module.exports = [
   {
-    text: "jenkins配置",
-    link: "/jenkins/"
+    text: "百宝盒",
+    ariaLabel: "more",
+    items: [
+      {
+        text: "jenkins配置",
+        link: "/jenkins/"
+      },
+      {
+        text: "docker配置",
+        link: "/docker/"
+      }
+    ]
   },
   {
     text: "interview",

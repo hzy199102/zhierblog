@@ -78,3 +78,8 @@ sidebar: auto
 ```
 
 `.vuepress/config.js`中`themeConfig.sidebar`的全局配置就会因覆盖而失效。
+
+## vuepress 中图片的放大缩小
+
+我在[Awesome VuePress](https://github.com/vuepressjs/awesome-vuepress)中搜索关键字`image`
+![Image from alias](./img/advanced/advanced_1.png)
