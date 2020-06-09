@@ -6,7 +6,17 @@ module.exports = {
   description: "这是止耳的vuepress博客",
   // 如果网址不是部署在根目录下，favicon.ico必须指定
   head: [["link", { rel: "icon", href: "/favicon.ico" }]],
-
+  chainWebpack: config => {
+    // console.log(config.module);
+    // webp Loader
+    // 支持webp
+    config.module
+      .rule("webp")
+      .test(/\.webp$/)
+      .use("file-loader")
+      .loader("file-loader")
+      .end();
+  },
   configureWebpack: {
     resolve: {
       alias: {

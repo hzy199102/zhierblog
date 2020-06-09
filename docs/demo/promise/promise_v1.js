@@ -1,9 +1,9 @@
 /**
- * promise函数
+ * myPromise函数
  * 1. 之所以用函数不用class，是为了方便定义对象的私有变量和私有方法
  * @param {*} executor 执行函数，原来执行同步或者异步操作
  */
-function promise(executor) {
+function myPromise(executor) {
   // 三种基础状态
   const PENDING = "pending";
   const FULFILLED = "fulfilled";
