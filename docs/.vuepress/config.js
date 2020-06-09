@@ -1,3 +1,5 @@
+const { path } = require("@vuepress/shared-utils");
+console.log(path.resolve(__dirname, "../", "demo"));
 module.exports = {
   base: "/vuepress/",
   title: "zhierblog",
@@ -8,7 +10,8 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        "@alias": "path/to/some/dir"
+        // 由于代码段的导入将在 webpack 编译之前执行，因此你无法使用 webpack 中的路径别名，此处的 @ 默认值是 process.cwd()。所以@demo无效
+        "@demo": path.resolve(__dirname, "../", "demo")
       }
     }
   },

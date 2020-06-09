@@ -100,6 +100,16 @@ var obj = {
       })
     }
   ],
+  "/study/": [
+    {
+      title: "学习进度",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../study")
+      })
+    }
+  ],
   "/api/": [
     {
       title: "接口",
@@ -131,6 +141,17 @@ var obj = {
       // children: [["", "介绍"]]
     }
   ],
+  "/interview/js/": [
+    {
+      title: "interview——js篇",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/js")
+      })
+      // children: [["", "介绍"]]
+    }
+  ],
   "/interview/vuepress/": [
     {
       title: "interview——vuepress篇",
@@ -138,6 +159,36 @@ var obj = {
       sidebarDepth: 3,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/vuepress")
+      })
+    }
+  ],
+  "/interview/webpack/": [
+    {
+      title: "interview——webpack篇",
+      collapsable: false,
+      sidebarDepth: 3,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/webpack")
+      })
+    }
+  ],
+  "/interview/vue/": [
+    {
+      title: "interview——vue篇",
+      collapsable: false,
+      sidebarDepth: 3,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/vue")
+      })
+    }
+  ],
+  "/interview/vuessr/": [
+    {
+      title: "interview——vuessr篇",
+      collapsable: false,
+      sidebarDepth: 3,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/vuessr")
       })
     }
   ]
