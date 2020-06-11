@@ -194,3 +194,38 @@ var obj = {
    ```
 
    :::
+
+   ## 支持 webp
+
+   ```js
+   // /.vuepress/config.js
+   chainWebpack: config => {
+     // console.log(config.module);
+     // webp Loader
+     // 支持webp
+     config.module
+       .rule("webp")
+       .test(/\.webp$/)
+       .use("file-loader")
+       .loader("file-loader")
+       .end();
+   },
+   ```
+
+   ## 如何覆写主题的插件
+
+   ### banner 上的返回首页的链接改为其他地址
+
+   1. 设置继承默认主题
+      ```js
+      // `.vuepress/theme/index.js`
+      module.exports = {
+        // extend: "@vuepress/theme-default"
+        // theme: "@vuepress/theme-vue",
+        extend: "@vuepress/theme-default",
+        globalLayout: "./layouts/GlobalLayout"
+        // theme: "@vuepress/theme-vue"
+      };
+      ```
+   2. 查看`theme-defalut`源码，可以发现 banner 插件就是`Navbar.vue`,于是将它 copy 到`.vuepress/theme/components`下，然后就着修改即可，这就实现了组件覆写。
+      参考资料：[主题的继承](https://www.vuepress.cn/theme/inheritance.html#%E7%BB%84%E4%BB%B6%E7%9A%84%E8%A6%86%E7%9B%96)
