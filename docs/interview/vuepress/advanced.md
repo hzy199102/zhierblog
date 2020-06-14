@@ -82,4 +82,150 @@ sidebar: auto
 ## vuepress 中图片的放大缩小
 
 我在[Awesome VuePress](https://github.com/vuepressjs/awesome-vuepress)中搜索关键字`image`
+
 ![Image from alias](./img/advanced/advanced_1.png)
+
+```js
+// config.js
+plugins: [
+  [
+    "vuepress-plugin-zooming",
+    {
+      // selector: ".my-wrapper .my-img",
+      delay: 1000,
+      options: {
+        bgColor: "black",
+        zIndex: 10000
+      }
+    }
+  ]
+];
+```
+
+## 编译指定目录
+
+jenkins 自动化部署中，灵活指定编译文档以及生成网站的相关配置非常重要，还要注意网站体积和编译速度等性能点。
+
+1. 安装`cross-env`
+
+   `cnpm install cross-env`
+
+2. `package.json`加入对应命令
+
+```js
+"scripts": {
+  "serve": "vue-cli-service serve",
+  "build": "vue-cli-service build",
+  "lint": "vue-cli-service lint",
+  "docs:dev": "vuepress dev docs",
+  "docs:build": "vuepress build docs",
+  "build-account": "cross-env folder_name=account npm run docs:build",
+  "build-Apollo": "cross-env folder_name=Apollo npm run docs:build",
+  "build-B-trsut": "cross-env folder_name=B-trsut npm run docs:build"
+},
+```
+
+3. `.vuepress/config.js`中做相应处理，具体看`base`,`dest`,`patterns`
+
+```js
+var obj = {
+  base: folderName ? `/${folderName}/` : "/",
+  dest: folderName
+    ? `docs/.vuepress/dist/${folderName}`
+    : "docs/.vuepress/dist",
+  title: folderName ? nameMap[folderName].text : "文档",
+  // 处理指定文档，提升处理速度，减小网站体积
+  patterns: folderName
+    ? [`${folderName}/*.md`, "README.md"]
+    : ["**/*.md", "**/*.vue"],
+
+  ...
+};
+```
+
+## 生成自定义的主题
+
+### 在自定义主题中加入搜索插件
+
+1. 在整体项目下运行`yarn add -D @vuepress/plugin-search`进行插件安装
+
+   ::: tip 提示
+
+   此插件已包含在默认主题中，所以无须再次安装
+
+   - 在`node_modules/vuepress`的`package.json`中可以看到引用了`@vuepress/theme-default`
+   - 在`node_modules/@vuepress/theme-default`的`package.json`中可以看到引用了`@vuepress/plugin-search`
+
+   :::
+
+2. 启用插件
+
+   ```js
+   // .vuepress/config.js or themePath/index.js
+   module.exports = {
+     plugins: [
+       [
+         "@vuepress/search",
+         {
+           searchMaxSuggestions: 10 // 最多搜索10条，看源码会有更多配置
+         }
+       ]
+     ]
+   };
+   ```
+
+   ::: tip 提示
+
+   如果使用自定义主题，在`themePath/package.json`
+
+   ```json
+   {
+     // 只有这样写才能启动themePath/index.js的配置
+     "main": "index.js",
+     // 这样写只是单纯确认默认布局，不会经过themePath/index.js的处理
+     // 所以刚开始一直系统提示：Cannot find module '@SearchBox'
+     // "main": "layouts/Layout.vue"
+     "dependencies": {
+       // 如果不继承默认主题，所有的插件都要自己手动配置，
+       // 可以通过在themePath下运行`yarn add -D @vuepress/plugin-search`进行配置
+       "@vuepress/plugin-search": "^1.4.0"
+     }
+   }
+   ```
+
+   :::
+
+   ## 支持 webp
+
+   ```js
+   // /.vuepress/config.js
+   chainWebpack: config => {
+     // console.log(config.module);
+     // webp Loader
+     // 支持webp
+     config.module
+       .rule("webp")
+       .test(/\.webp$/)
+       .use("file-loader")
+       .loader("file-loader")
+       .end();
+   },
+   ```
+
+   ## 如何覆写主题的插件
+
+   ### banner 上的返回首页的链接改为其他地址
+
+   1. 设置继承默认主题
+      ```js
+      // `.vuepress/theme/index.js`
+      module.exports = {
+        // extend: "@vuepress/theme-default"
+        // theme: "@vuepress/theme-vue",
+        extend: "@vuepress/theme-default",
+        globalLayout: "./layouts/GlobalLayout"
+        // theme: "@vuepress/theme-vue"
+      };
+      ```
+   2. 查看`theme-defalut`源码，可以发现 banner 插件就是`Navbar.vue`,于是将它 copy 到`.vuepress/theme/components`下，然后就着修改即可，这就实现了组件覆写。
+      参考资料：[主题的继承](https://www.vuepress.cn/theme/inheritance.html#%E7%BB%84%E4%BB%B6%E7%9A%84%E8%A6%86%E7%9B%96)

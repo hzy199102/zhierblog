@@ -1,14 +1,27 @@
+const { path } = require("@vuepress/shared-utils");
+console.log(path.resolve(__dirname, "../", "demo"));
 module.exports = {
   base: "/vuepress/",
   title: "zhierblog",
   description: "这是止耳的vuepress博客",
   // 如果网址不是部署在根目录下，favicon.ico必须指定
   head: [["link", { rel: "icon", href: "/favicon.ico" }]],
-
+  chainWebpack: config => {
+    // console.log(config.module);
+    // webp Loader
+    // 支持webp
+    config.module
+      .rule("webp")
+      .test(/\.webp$/)
+      .use("file-loader")
+      .loader("file-loader")
+      .end();
+  },
   configureWebpack: {
     resolve: {
       alias: {
-        "@alias": "path/to/some/dir"
+        // 由于代码段的导入将在 webpack 编译之前执行，因此你无法使用 webpack 中的路径别名，此处的 @ 默认值是 process.cwd()。所以@demo无效
+        "@demo": path.resolve(__dirname, "../", "demo")
       }
     }
   },

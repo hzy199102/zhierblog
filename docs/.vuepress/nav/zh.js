@@ -22,14 +22,34 @@ module.exports = [
         link: "/interview/nodejs/"
       },
       {
+        text: "js",
+        link: "/interview/js/"
+      },
+      {
         text: "css",
         link: "/interview/css/"
       },
       {
         text: "vuepress",
         link: "/interview/vuepress/"
+      },
+      {
+        text: "vuessr",
+        link: "/interview/vuessr/"
+      },
+      {
+        text: "webpack",
+        link: "/interview/webpack/"
+      },
+      {
+        text: "vue",
+        link: "/interview/vue/"
       }
     ]
+  },
+  {
+    text: "学习进度",
+    link: "/study/"
   },
   {
     text: "接口",
