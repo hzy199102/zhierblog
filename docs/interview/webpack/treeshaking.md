@@ -4,7 +4,7 @@
 
 本次使用的是 webpack4.0+，这是重点。
 
-参考文档：[Webpack 4 Tree Shaking 终极优化指南](https://www.bbsmax.com/A/obzbDr365E/),[Webpack 4 教程 - 第七部分 减少打包体积与 Tree Shaking](https://www.cnblogs.com/powertoolsteam/p/10621660.html)
+参考文档：[Webpack 4 Tree Shaking 终极优化指南](https://www.bbsmax.com/A/obzbDr365E/),[Webpack 4 教程 - 第七部分 减少打包体积与 Tree Shaking](https://www.cnblogs.com/powertoolsteam/p/10621660.html),[tree shaking](https://www.webpackjs.com/guides/tree-shaking/)
 
 ## 目标
 
@@ -42,8 +42,8 @@
           {
             test: /regex/,
             use: [loaders],
-            sideEffects: true
-          }
+            sideEffects: true,
+          },
         ];
       }
       ```
@@ -100,10 +100,10 @@
        [
          "[@babel/preset-env](http://twitter.com/babel/preset-env)",
          {
-           modules: false
-         }
-       ]
-     ]
+           modules: false,
+         },
+       ],
+     ],
    };
    ```
 
@@ -121,17 +121,17 @@
 ```js
 module.exports = {
   entry: {
-    index: "./src/index.js"
+    index: "./src/index.js",
   },
   plugins: [
     new CleanWebpackPlugin(),
     new HTMLWebpackPlugin({
-      title: "Caching"
+      title: "Caching",
     }),
     new webpack.ProvidePlugin({
       // _: "lodash-es"
-      _join: ["lodash-es/join", "default"] //
-    })
+      _join: ["lodash-es/join", "default"], //
+    }),
   ],
   optimization: {
     splitChunks: {
@@ -139,16 +139,16 @@ module.exports = {
         commons: {
           test: /[\\/]node_modules[\\/]/,
           name: "vendors",
-          chunks: "all"
-        }
-      }
-    }
+          chunks: "all",
+        },
+      },
+    },
   },
   output: {
     filename: "[name].[chunkhash].js",
     // chunkFilename: "[name].bundle.js",
-    path: path.resolve(__dirname, "dist")
-  }
+    path: path.resolve(__dirname, "dist"),
+  },
   // The 'mode' option has not been set, webpack will fallback to 'production' for this value
   // mode: "development"
 };
