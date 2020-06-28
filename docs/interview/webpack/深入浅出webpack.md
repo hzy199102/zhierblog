@@ -109,11 +109,11 @@
            entry: {
              app: `./${prefix}main.js`, // Chunk app 的 JS 执行入口文件
              polyfills: `./${prefix}polyfills.js`,
-             google_analytics: `./${prefix}google_analytics.js`,
+             google_analytics: `./${prefix}google_analytics.js`
            },
            output: {
              // filename: "[name]*[chunkhash:8].js", // 给输出的文件名称加上 hash 值
-             filename: (obj) => {
+             filename: obj => {
                // console.log(obj.chunk.name);
                if (obj.chunk.name === "polyfills") {
                  return `polyfills.bundle.js`;
@@ -121,7 +121,7 @@
                  return `[name]_[chunkhash:8].js`;
                }
              },
-             path: path.resolve(__dirname, `./dist`),
+             path: path.resolve(__dirname, `./dist`)
            },
            optimization: {
              splitChunks: {
@@ -135,11 +135,11 @@
                    chunks(chunk) {
                      // 排除名字为`polyfills`的模块。
                      return chunk.name !== "polyfills";
-                   },
-                 },
-               },
-             },
-           },
+                   }
+                 }
+               }
+             }
+           }
          };
          ```
 
@@ -148,6 +148,7 @@
          1. 利用了 output.filename 的 function 形式，和它自带的`[name]`,`[chunkhash]`等特有的值处理
          2. 利用了 optimization 的压缩方式，这个在生产环境下，会自动执行。
          3. entry 中指定了`polyfills`
+         4. `polyfills`文件本来会打包到 common.js 中，但是`optimization`压缩的时候指明了不打包`polyfills`chunk。
 
       3. 使用 html 模板，在里面设置按需加载`polyfills.js`
 
@@ -161,9 +162,9 @@
                title: "hzy",
                template: `./${prefix}template.html`, // HTML 模版文件所在的文件路径
                filename: "index.html", // 输出的 HTML 的文件名称
-               excludeChunks: ["polyfills"],
-             }),
-           ],
+               excludeChunks: ["polyfills"]
+             })
+           ]
          };
          ```
 
@@ -206,9 +207,85 @@
    其实核心代码已经贴出，源码在 faster/test/opensdk/webpack/3-9
 4. 坑
    1. 写了 2 个 module 键值对，导致第一个 module 设定的 loader 总是无效
+5. 没有设置 babel-loader
 
 ### 3-10 管理多个单页应用
 
-####
+    实例化多个`html-webpack-plugin`对象，核心在`chunk`参数，指定引入的chunk
+
+### 3-11 构建同构应用
+
+### 3-12 构建 Electron 应用
+
+### 3-13 构建 Npm 模块
+
+### 3-14 构建离线应用
+
+### 3-15 搭配 NpmScript
+
+### 3-16 检查代码
+
+### 3-17 通过 Node.js API 启动 Webpack
+
+### 3-18 使用 Webpack Dev Middleware
+
+### 3-19 加载图片
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.png$/,
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              // 30KB 以下的文件采用 url-loader
+              limit: 1024 * 30,
+              // 否则采用 file-loader，默认值就是 file-loader
+              fallback: "file-loader"
+            }
+          }
+        ]
+      }
+    ]
+  }
+};
+```
+
+通过 imagemin-webpack-plugin 压缩图片；
+通过 webpack-spritesmith 插件制作雪碧图。
+
+### 3-20 加载 SVG
+
+### 3-21 加载 Source Map
+
+有些从 Npm 安装的第三方模块是采用 ES6 或者 TypeScript 编写的，它们在发布时会同时带上编译出来的 JavaScript 文件和对应的 Source Map 文件，以方便你在使用它们出问题的时候调试它们；
+
+默认情况下 Webpack 是不会去加载这些附加的 Source Map 文件的，Webpack 只会在转换过程中生成 Source Map。 为了让 Webpack 加载这些附加的 Source Map 文件，需要安装 source-map-loader 。 使用方法如下：
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        // 只加载你关心的目录下的 Source Map，以提升构建速度
+        include: [path.resolve(root, "node_modules/some-components/")],
+        use: ["source-map-loader"],
+        // 要把 source-map-loader 的执行顺序放到最前面，如果在 source-map-loader 之前有 Loader 转换了该 JavaScript 文件，会导致 Source Map 映射错误
+        enforce: "pre"
+      }
+    ]
+  }
+};
+```
+
+::: tip
+由于 source-map-loader 在加载 Source Map 时计算量很大，因此要避免让该 Loader 处理过多的文件，不然会导致构建速度缓慢。 通常会采用 include 去命中只关心的文件。
+:::
+
+`npm i -D source-map-loader`
 
 ## 优化
