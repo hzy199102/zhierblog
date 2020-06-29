@@ -289,3 +289,107 @@ module.exports = {
 `npm i -D source-map-loader`
 
 ## 优化
+
+### 4-1 缩小文件搜索范围
+
+#### 优化 resolve.alias 配置
+
+resolve.alias 配置项通过别名来把原导入路径映射成一个新的导入路径。
+
+在实战项目中经常会依赖一些庞大的第三方模块，以 React 库为例，安装到 node_modules 目录下的 React 库的目录结构如下：
+
+![dive_into_webpack_3](./img/dive_into_webpack_3.png)
+
+可以看到发布出去的 React 库中包含两套代码：
+
+- 一套是采用 CommonJS 规范的模块化代码，这些文件都放在 lib 目录下，以 package.json 中指定的入口文件 react.js 为模块的入口。
+- 一套是把 React 所有相关的代码打包好的完整代码放到一个单独的文件中，这些代码没有采用模块化可以直接执行。其中 dist/react.js 是用于开发环境，里面包含检查和警告的代码。dist/react.min.js 是用于线上环境，被最小化了。
+
+默认情况下 Webpack 会从入口文件 ./node_modules/react/react.js 开始递归的解析和处理依赖的几十个文件，这会时一个耗时的操作。 通过配置 resolve.alias 可以让 Webpack 在处理 React 库时，直接使用单独完整的 react.min.js 文件，从而跳过耗时的递归解析操作。
+
+相关 Webpack 配置如下：
+
+```js
+module.exports = {
+  resolve: {
+    // 使用 alias 把导入 react 的语句换成直接使用单独完整的 react.min.js 文件，
+    // 减少耗时的递归解析操作
+    alias: {
+      react: path.resolve(__dirname, "./node_modules/react/dist/react.min.js") // react15
+      // 'react': path.resolve(__dirname, './node_modules/react/umd/react.production.min.js'), // react16
+    }
+  }
+};
+```
+
+::: tip
+除了 React 库外，大多数库发布到 Npm 仓库中时都会包含打包好的完整文件，对于这些库你也可以对它们配置 alias。
+
+但是对于有些库使用本优化方法后会影响到后面要讲的使用 Tree-Shaking 去除无效代码的优化，因为打包好的完整文件中有部分代码你的项目可能永远用不上。 一般对整体性比较强的库采用本方法优化，因为完整文件中的代码是一个整体，每一行都是不可或缺的。 但是对于一些工具类的库，例如 lodash，你的项目可能只用到了其中几个工具函数，你就不能使用本方法去优化，因为这会导致你的输出代码中包含很多永远不会执行的代码。
+:::
+
+#### 优化 module.noParse 配置
+
+`module.noParse` 配置项可以让 Webpack 忽略对部分没采用模块化的文件的递归解析处理，这样做的好处是能提高构建性能。 原因是一些库，例如 jQuery 、ChartJS， 它们庞大又没有采用模块化标准，让 Webpack 去解析这些文件耗时又没有意义。
+
+noParse 是可选配置项，类型需要是 RegExp、[RegExp]、function 其中一个。
+
+例如想要忽略掉 jQuery 、ChartJS，可以使用如下代码：
+
+```js
+// 使用正则表达式
+noParse: /jquery|chartjs/;
+
+// 使用函数，从 Webpack 3.0.0 开始支持
+noParse: content => {
+  // content 代表一个模块的文件路径
+  // 返回 true or false
+  return /jquery|chartjs/.test(content);
+};
+```
+
+在上面的 优化 resolve.alias 配置 中讲到单独完整的 react.min.js 文件就没有采用模块化，让我们来通过配置 module.noParse 忽略对 react.min.js 文件的递归解析处理， 相关 Webpack 配置如下：
+
+```js
+const path = require("path");
+
+module.exports = {
+  module: {
+    // 独完整的 `react.min.js` 文件就没有采用模块化，忽略对 `react.min.js` 文件的递归解析处理
+    noParse: [/react\.min\.js$/]
+  }
+};
+```
+
+::: tip
+注意被忽略掉的文件里不应该包含 import 、 require 、 define 等模块化语句，不然会导致构建出的代码中包含无法在浏览器环境下执行的模块化语句。
+:::
+
+### 4-2 使用 DllPlugin
+
+参考资料：[webpack 使用 DllPlugin 和 DllReferencePlugin 提取公共插件提升打包效率](https://www.jianshu.com/p/deedd775eec3)
+
+源码在 faster/test/opensdk/webpack/4-2
+
+#### Dllplugin 和 CommonsChunkPlugin 的区别
+
+参考资料：[webpack 分离第三方库(CommonsChunkPlugin 并不是分离第三方库的好办法 DllPlugin 科学利用浏览器缓存）](https://www.cnblogs.com/lihuanqing/p/6979518.html)
+
+#### Babel 之 babel-polyfill、babel-runtime、transform-runtime 详解
+
+参考资料：[Babel 之 babel-polyfill、babel-runtime、transform-runtime 详解](https://www.cnblogs.com/L-xmin/p/12493824.html),[babel 里 transform-runtime 插件的作用](https://segmentfault.com/a/1190000020335546?utm_source=tag-newest)
+
+babel 默认只转换新的 JavaScript 语法，比如箭头函数、扩展运算（spread）。
+
+不转换新的 API，例如 Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise 等全局对象，以及一些定义在全局对象上的方法（比如 Object.assign）都不会转译。如果想使用这些新的对象和方法，则需要为当前环境提供一个垫片（polyfill）。
+
+1. babel-polyfill
+
+目前最常用的配合 Babel 一起使用的 polyfill 是 babel-polyfill，通过改写全局 prototype 的方式实现，它会加载整个 polyfill，针对编译的代码中新的 API 进行处理，并且在代码中插入一些帮助函数，比较适合单独运行的项目。
+
+babel-polyfill 解决了 Babel 不转换新 API 的问题，但是直接在代码中插入帮助函数，会导致污染了全局环境，并且不同的代码文件中包含重复的代码，导致编译后的代码体积变大。虽然这对于应用程序或命令行工具来说可能是好事，但如果你的代码打算发布为供其他人使用的库，或你无法完全控制代码运行的环境，则会成为问题。
+
+一般浏览器不支持一个新的 API，那它可能就是全部新 API 都不支持，所以，可以在 index.html 页面进行简单的判断去确定是否要加载 polyfill.js，然后将 polyfill.js 文件单独打包出来，这个方案的局限性是污染了全局代码，而且做不到按需加载，即无法 tree shaking，但是对于一般浏览器，它更友好，代码量更少，只是对于老版本浏览器，会稍微不友好点而已。
+参考源码在 faster/test/opensdk/webpack/3-9
+
+#### 用了 Dllplugin，是否还需要 Babel 之 babel-polyfill、babel-runtime、transform-runtime
