@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MutationObserver</title>
+    <style type="text/css"></style>
+  </head>
+  <body>
+    <div id="sample-div" class="test">Simple div</div>
+  </body>
+  <!--引用jqery-->
+  <script src="../common//jquery.js"></script>
+  <script>
+    window.onload = function() {
+      // 会生成2条一模一样的MutationRecord
+      // $("#sample-div").removeAttr("class");
+      // 正常生成一条MutationRecord
+      document.getElementById("sample-div").removeAttribute("class");
+    };
+    /**
+     * mutationObserver
+     * observe  — 启动监听
+     * disconnect — 用来停止观察
+     * takeRecords — 返用来清除变动记录，即不再处理未处理的变动。
+     */
+    var mutationObserver = new MutationObserver(function(mutations, observer) {
+      // observer.disconnect(); 停止观察 DOM
+      // console.log(mutations);
+      mutations.forEach(function(mutation) {
+        console.log(mutation);
+      });
+    });
+    // 开始侦听页面的根 HTML 元素中的更改。
+    /**
+     * type：观察的变动类型（attribute、characterData或者childList）
+     * target：发生变动的 DOM 节点
+     * addedNodes：新增的 DOM 节点
+     * removedNodes：删除的 DOM 节点
+     * previousSibling：前一个同级节点，如果没有则返回 null
+     * nextSibling：下一个同级节点，如果没有则返回 null
+     * attributeName：发生变动的属性。如果设置了attributeFilter，则只返回预先指定的属性。
+     * oldValue：变动前的值。这个属性只对 attribute 和 characterData 变动有效，如果发生 childList 变动，则返回 null
+     */
+    mutationObserver.observe($("#sample-div")[0], {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true,
+      attributeOldValue: true,
+      characterDataOldValue: true
+    });
+  </script>
+</html>
