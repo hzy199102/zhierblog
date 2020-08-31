@@ -130,6 +130,16 @@ var obj = {
       })
     }
   ],
+  "/interview/gmp/": [
+    {
+      title: "interview——gmp篇",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/gmp")
+      })
+    }
+  ],
   "/interview/nodejs/": [
     {
       title: "interview——nodejs篇",

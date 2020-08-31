@@ -30,6 +30,10 @@ module.exports = [
         link: "/interview/css/"
       },
       {
+        text: "gmp",
+        link: "/interview/gmp/"
+      },
+      {
         text: "vuepress",
         link: "/interview/vuepress/"
       },
