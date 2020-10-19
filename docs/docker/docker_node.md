@@ -1,5 +1,7 @@
 # docker 中部署 nodejs 应用
 
+错在陈醋当成墨，写尽半生纸上酸。
+
 ## 参考资料
 
 [Docker + jenkins 自动化部署 Node.js 应用](https://www.jianshu.com/p/47ef444c74da)
@@ -45,26 +47,37 @@ https://pm2.keymetrics.io/docs/usage/quick-start/
 
 ![Image from alias](./img/docker_node/docker_node_1.png)
 
-1.  在 docker 中创建一个容器用来缓存 node_modules，并暴露 /project/node_modules 作为挂载路径。
-    ```bash
-    # 一定要-dit，否则容器会自动停止
-    docker run -dit -v /project/node_modules --name node_modules alpine
-    ```
-2.  `docker attach node_modules`：可以进入容器内部查看情况，可以看到共享卷已经被创建。按组合键 `Ctrl+q`，然后容器会关闭并在后台保持运行，界面也可恢复。
-    千万不能用`exit`命令，否则容器关闭的同时会停止运行。如果这个进入容器的命令失败，下面的步骤有新的方案。
-3.  `docker pull node:13.6.0-alpine`：[拉取 docker 的 node 镜像](./docker_node.md#拉取-docker-的-node-镜像)，这一步可以忽略。
-4.  `docker run -dit -v /docker_volume/node_server/test:/project --volumes-from node_modules --name project node:13.6.0-alpine`
-    `docker run -dit -v /docker_volume/node_server/test:/project -w /project --volumes-from node_modules --name project node:13.6.0-alpine`
-    这 2 条命令的区别仅仅在于`-w`，表示执行命令的初始路径，不指定默认`/`根目录。
-5.  `docker exec -it project npm i lodash`：如果容器指定了`-w`，那么它会在指定路径下运行，当然也可以使用复合命令先跳转到指定目录在执行命令，这里不详细介绍了。
-6.  `docker exec -it project /bin/sh`：这个命令可以进入 node 容器，可以直接`exit`退出
-    ```bash
-    [root@zhier test]# docker exec -dit project /bin/bash
-    Error response from daemon: OCI runtime exec failed: exec failed: container_linux.go:346: starting container process caused "exec: \"/bin/bash\": stat /bin/bash: no such file or directory": unknown
-    ```
-    这个错误说明 镜像不包含适合 bash 的风格操作，没有这样的文件或目录，可能你的镜像基于 busybox，它没有 bash shell。但他在/bin/sh 有一个 shell
-7.  经过上述步骤，可以观察发现，lodash 已经在 2 个容器中共享。[docker 入门 —— docker 容器数据卷 volumes-from](https://blog.csdn.net/xiaojin21cen/article/details/84564973)，
-    从文字可得出个结论：<span style="color: red;">容器之间配置信息的传递，数据卷的生命周期一直持续到没有容器使用它为止。</span>
+1. 先创建 node server 代码存放路径
+
+   ```bash
+   cd /
+   mkdir /docker_volume
+   mkdir /docker_volume/node_server
+   mkdir /docker_volume/node_server/test
+   cd /docker_volume/node_server/test
+   # 存放代码，主要注意package.json
+   ```
+
+1. 在 docker 中创建一个容器用来缓存 node_modules，并暴露 /project/node_modules 作为挂载路径。
+   ```bash
+   # 一定要-dit，否则容器会自动停止
+   docker run -dit -v /project/node_modules --name node_modules alpine
+   ```
+1. `docker attach node_modules`：可以进入容器内部查看情况，可以看到共享卷已经被创建。按组合键 `Ctrl+q`，然后容器会关闭并在后台保持运行，界面也可恢复。
+   千万不能用`exit`命令，否则容器关闭的同时会停止运行。如果这个进入容器的命令失败，下面的步骤有新的方案。
+1. `docker pull node:13.6.0-alpine`：[拉取 docker 的 node 镜像](./docker_node.md#拉取-docker-的-node-镜像)，这一步可以忽略。
+1. `docker run -dit -v /docker_volume/node_server/test:/project --volumes-from node_modules --name project node:13.6.0-alpine`
+   `docker run -dit -v /docker_volume/node_server/test:/project -w /project --volumes-from node_modules --name project node:13.6.0-alpine`
+   这 2 条命令的区别仅仅在于`-w`，表示执行命令的初始路径，不指定默认`/`根目录。`--volumes-from node_modules`就是挂载共享卷
+1. `docker exec -it project npm i lodash`：如果容器指定了`-w`，那么它会在指定路径下运行，当然也可以使用复合命令先跳转到指定目录在执行命令，这里不详细介绍了。
+1. `docker exec -it project /bin/sh`：这个命令可以进入 node 容器，可以直接`exit`退出
+   ```bash
+   [root@zhier test]# docker exec -dit project /bin/bash
+   Error response from daemon: OCI runtime exec failed: exec failed: container_linux.go:346: starting container process caused "exec: \"/bin/bash\": stat /bin/bash: no such file or directory": unknown
+   ```
+   这个错误说明 镜像不包含适合 bash 的风格操作，没有这样的文件或目录，可能你的镜像基于 busybox，它没有 bash shell。但他在/bin/sh 有一个 shell
+1. 经过上述步骤，可以观察发现，lodash 已经在 2 个容器中共享。[docker 入门 —— docker 容器数据卷 volumes-from](https://blog.csdn.net/xiaojin21cen/article/details/84564973)，
+   从文字可得出个结论：<span style="color: red;">容器之间配置信息的传递，数据卷的生命周期一直持续到没有容器使用它为止。</span>
 
 ### 优化
 
