@@ -4,13 +4,17 @@
 
 [Docker + jenkins 自动化部署 Node.js 应用](https://www.jianshu.com/p/47ef444c74da)
 [利用 Docker 容器搭建高效的 Node.js 开发环境](https://www.imooc.com/article/19840)
+[Docker 化 Node.js Web 应用](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/)
 http://101.200.192.219:2227/vuepress/
 https://www.imooc.com/article/19840
-https://www.cnblogs.com/caidingyu/p/11170524.html
+[Docker 部署 nodejs 应用并使用 PM2 作为守护进程](https://www.cnblogs.com/caidingyu/p/11170524.html)
+https://www.jianshu.com/p/bb9f88c1c032?utm_campaign
+https://www.jianshu.com/p/f8740c00bbf6
 https://www.jianshu.com/p/f8740c00bbf6
 http://101.200.192.219:2201/job/zhierblog/
 https://blog.csdn.net/chengly0129/article/details/70292953
-https://pm2.keymetrics.io/docs/usage/quick-start/
+[pm2 官网]https://pm2.keymetrics.io/docs/usage/quick-start/
+[Docker 部署 nodejs 项目 - 草稿](https://www.jianshu.com/p/5acae24b00cc)
 
 ## 遇到的问题
 
