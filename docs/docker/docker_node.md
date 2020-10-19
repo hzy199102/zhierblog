@@ -15,7 +15,7 @@ https://www.jianshu.com/p/f8740c00bbf6
 https://www.jianshu.com/p/f8740c00bbf6
 http://101.200.192.219:2201/job/zhierblog/
 https://blog.csdn.net/chengly0129/article/details/70292953
-[pm2 官网]https://pm2.keymetrics.io/docs/usage/quick-start/
+[pm2 官网](https://pm2.keymetrics.io/docs/usage/quick-start/)
 [Docker 部署 nodejs 项目 - 草稿](https://www.jianshu.com/p/5acae24b00cc)
 
 ## 遇到的问题
@@ -33,7 +33,9 @@ https://blog.csdn.net/chengly0129/article/details/70292953
    这存在的问题：
 
    1. node_module 很大，而且不应该每个 node server 都有一份 node_module，如果有公用就最好。
+      [解决](./docker_node.md#共享模块-node-modules)
    2. 一定要有 node_module 吗，可以像 node client 一样，build 一下吗？
+      不行
    3. 可以在 docker 上设置 jenkins，node，pm2 等环境吗？
 
    优化的方式：
@@ -45,7 +47,9 @@ https://blog.csdn.net/chengly0129/article/details/70292953
 
 复制文件夹的内容还可以用 tar 在解压的方式
 
-## 用 Docker 搭建 Node.js 开发环境实例——共享模块 node_modules
+## 共享模块 node_modules
+
+用 Docker 搭建 Node.js 开发环境实例——共享模块 node_modules
 
 ### 基础设计
 
@@ -121,3 +125,13 @@ https://blog.csdn.net/chengly0129/article/details/70292953
     ![Image from alias](./img/docker_node/docker_node_4.png)
 
 ## jenkins 部署
+
+1. `docker run -dit -p 2290:8080 -v /docker_volume/node_server/test:/project -w /project -v node_modules13:/project/node_modules --name project node:13.6.0-alpine`
+2. `docker exec -dit project npm install pm2 -g`
+3. `docker exec -dit project npm install`
+4. `docker exec -dit project node server`
+5. `docker exec -dit project pm2-runtime server.js`
+6. `ps -ef|grep node`
+7. `kill -9 id`
+8. `docker exec -it project pm2 list`
+9. `docker exec -dit project pm2 delete server`
