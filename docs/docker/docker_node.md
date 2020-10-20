@@ -134,11 +134,12 @@ https://blog.csdn.net/chengly0129/article/details/70292953
 1. `docker exec -dit project pm2-runtime server.js`
 1. `ps -ef|grep node`
 1. `kill -9 id`
-1. `docker exec -it project pm2 list`
+1. `docker exec -it zhierblogAPI pm2 list`
 1. `docker exec -dit project pm2 delete server`
 1. `cd /var/run`：确定`docker.sock`是否存在
 1. `cd /usr/bin`：确定`docker`是否存在
 1. `docker run -dit -p 2290:8080 -v /docker_volume/node_server/test:/project -w /project -v node_modules13:/project/node_modules --name project node:13.6.0-alpine`
-
-部署的时候发现，jenkins 内部无宿主机的 docker 权限，所以命令执行不了，因为正常的情况是把代码上传到其他服务器，然后用权限用户做这些操作，所以这里需要给 docker 容器赋予宿主机的 docker 命令权限。
-[在 docker 容器中调用和执行宿主机的 docker](https://blog.csdn.net/catoop/article/details/91042007)，这篇文章给我帮助很大！首先这个概念叫 docker in docker
+1. `docker exec -it zhierblogAPI /bin/sh`
+1. `cnpm install koa koa-static koa-router --save`，否则不会在 package.json 出现！
+   部署的时候发现，jenkins 内部无宿主机的 docker 权限，所以命令执行不了，因为正常的情况是把代码上传到其他服务器，然后用权限用户做这些操作，所以这里需要给 docker 容器赋予宿主机的 docker 命令权限。
+   [在 docker 容器中调用和执行宿主机的 docker](https://blog.csdn.net/catoop/article/details/91042007)，这篇文章给我帮助很大！首先这个概念叫 docker in docker
