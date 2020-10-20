@@ -127,7 +127,7 @@ https://blog.csdn.net/chengly0129/article/details/70292953
 ## jenkins 部署
 
 1. `docker rm -f project`
-1. `docker run -dit -p 2290:8080 -v /docker_volume/node_server/test:/project -w /project -v node_modules13:/project/node_modules --name project node:10.15-alpine`
+1. `docker run -dit -p 2290:8090 -v /docker_volume/node_server/test:/project -w /project -v node_modules13:/project/node_modules --name project node:10.15-alpine`
 1. `docker exec -dit project npm install pm2 -g`
 1. `docker exec -dit project npm install`
 1. `docker exec -dit project node server`
@@ -148,3 +148,13 @@ https://blog.csdn.net/chengly0129/article/details/70292953
    [jenkins 安装 nodejs 卡死](https://blog.csdn.net/u012075238/article/details/103052201)
    这时候会出现另一个错误
    [Dockerfile 中 npm 中 Error: could not get uid/gid 问题的解决方法](https://www.cnblogs.com/liyongjian5179/p/9884944.html)
+
+1.
+
+`docker exec -dit project npm install pm2 -g`
+
+1. `docker exec -dit project npm install`
+1. `docker exec -dit project node server`
+1. `docker exec -dit project pm2-runtime server.js`
+   有问题，是多进程，不能确定执行顺序，应该如下：
+   `docker exec -dit project npm install && node server && pm2-runtime server.js`
