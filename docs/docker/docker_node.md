@@ -158,3 +158,21 @@ https://blog.csdn.net/chengly0129/article/details/70292953
 1. `docker exec -dit project pm2-runtime server.js`
    有问题，是多进程，不能确定执行顺序，应该如下：
    `docker exec -dit project npm install && node server && pm2-runtime server.js`
+1. [jenkins 的任务卡住](https://www.cnblogs.com/sdadx/p/10498526.html)
+   `docker exec -dit project npm install && node server && nohup pm2-runtime ./server/index.js &`
+1. 无效，如图，反应过来，只有第一个是`docker exec -dit project npm install`，所以要整合命令应该是：
+   `docker exec -dit zhierblogAPI bash -c "npm config set registry https://registry.npm.taobao.org && npm config set unsafe-perm true && npm install pm2 -g && npm install "`
+   但是
+   ```bash
+   Error response from daemon: OCI runtime exec failed: exec failed: container_linux.go:346: starting container process caused "exec: \"bash\": executable file not found in $PATH": unknown
+   Build step 'Execute shell' marked build as failure
+   ```
+   这个错误说明 镜像不包含适合 bash 的风格操作，没有这样的文件或目录,可能你的镜像基于 busybox，它没有 bash shell。的确我使用的是`noode:13.6.0-alpine`
+   `docker run -dit -p 2290:8080 -v /docker_volume/node_server/test:/project -w /project -v node_modules13:/project/node_modules --name project node:10.15.3`
+   `docker run -dit -p 2290:8090 -v /docker_volume/jenkins_home/workspace/zhierblogAPI:/project -w /project -v node_modules13:/project/node_modules --name zhierblogAPI node:10.15.3`
+
+jenkins 执行 docker run 时报错 the input device is not a TT
+改为`docker exec -i zhierblogAPI bash -c "npm config set registry https://registry.npm.taobao.org && npm config set unsafe-perm true && npm install pm2 -g && npm install "`
+此时终于都好了。
+
+1. `npm install pm2 -g` 每次都要做，太麻烦，在项目中`npm install pm2 -save-dev`弄到 package.json 中，这样就到共享卷中，节约时间。
