@@ -160,6 +160,7 @@ https://blog.csdn.net/chengly0129/article/details/70292953
    `docker exec -dit project npm install && node server && pm2-runtime server.js`
 1. [jenkins 的任务卡住](https://www.cnblogs.com/sdadx/p/10498526.html)
    `docker exec -dit project npm install && node server && nohup pm2-runtime ./server/index.js &`
+   切记，这个命令执行完会直接 success，但是服务还没起来，过一会儿就好了，我刚开始一看到 jenkins 显示完成就去看服务，但是 404，还以为失败了，后来仔细想想，这个 success 出现的太快，所以是让命令在后台执行，终端退出后命令仍旧执行。所以过一会儿看就好了。当然如果迟迟不好，就去掉 nohup [cmd] & 看看实际运行情况或者去日志查看，但是日志这块这里就不深入了。
 1. 无效，如图，反应过来，只有第一个是`docker exec -dit project npm install`，所以要整合命令应该是：
    `docker exec -dit zhierblogAPI bash -c "npm config set registry https://registry.npm.taobao.org && npm config set unsafe-perm true && npm install pm2 -g && npm install "`
    但是
@@ -176,3 +177,4 @@ jenkins 执行 docker run 时报错 the input device is not a TT
 此时终于都好了。
 
 1. `npm install pm2 -g` 每次都要做，太麻烦，在项目中`npm install pm2 -save-dev`弄到 package.json 中，这样就到共享卷中，节约时间。
+   但这个时候因为 pm2 不是全局安装，所以要配置软连接`ln -s /project/node_modules/pm2/bin/pm2 /usr/bin/pm2 && ln -s /project/node_modules/pm2/bin/pm2-runtime /usr/bin/pm2-runtime`
