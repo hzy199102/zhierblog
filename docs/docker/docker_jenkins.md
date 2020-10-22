@@ -15,7 +15,9 @@
    docker run -d --restart unless-stopped --name jenkins_dockerindocker \
    -p 2203:8080 -p 2204:50000 \
    -v /docker_volume/jenkins_home:/var/jenkins_home \
+   # 确认/var/run/docker.sock存在
    -v /var/run/docker.sock:/var/run/docker.sock \
+   # 确认/usr/bin/docker存在
    -v /usr/bin/docker:/usr/bin/docker \
    -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai \
    -u root \
@@ -27,7 +29,9 @@
    docker run -d --restart unless-stopped --name jenkins_dockerindocker_lts \
    -p 2203:8080 -p 2204:50000 \
    -v /docker_volume/jenkins_home:/var/jenkins_home \
+   # 确认/var/run/docker.sock存在
    -v /var/run/docker.sock:/var/run/docker.sock \
+   # 确认/usr/bin/docker存在
    -v /usr/bin/docker:/usr/bin/docker \
    -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai \
    -u root \
@@ -39,7 +43,9 @@
    docker run -d --restart unless-stopped --name jenkins_dockerindocker_old \
    -p 2203:8080 -p 2204:50000 \
    -v /docker_volume/jenkins_home:/var/jenkins_home \
+   # 确认/var/run/docker.sock存在
    -v /var/run/docker.sock:/var/run/docker.sock \
+   # 确认/usr/bin/docker存在
    -v /usr/bin/docker:/usr/bin/docker \
    -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai \
    -u root \
@@ -56,7 +62,9 @@
    docker run -d --restart unless-stopped --name jenkins_dockerindocker_old \
    -p 2203:8080 -p 2204:50000 \
    -v /docker_volume/jenkins_home:/var/jenkins_home \
+   # 确认/var/run/docker.sock存在
    -v /var/run/docker.sock:/var/run/docker.sock \
+   # 确认/usr/bin/docker存在
    -v /usr/bin/docker:/usr/bin/docker \
    -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai \
    -u root \
@@ -72,7 +80,9 @@
    docker run -d --restart unless-stopped --name jenkins \
    -p 2201:8080 -p 2202:50000 \
    -v /docker_volume/jenkins_home:/var/jenkins_home \
+   # 确认/var/run/docker.sock存在
    -v /var/run/docker.sock:/var/run/docker.sock \
+   # 确认/usr/bin/docker存在
    -v /usr/bin/docker:/usr/bin/docker \
    -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai \
    -u root \
