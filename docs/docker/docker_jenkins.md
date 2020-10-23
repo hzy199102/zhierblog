@@ -54,9 +54,11 @@
 
 5. 之前的 jenkins 容器没有 docker in docker，但是在已经启动的容器中加入挂载目录很麻烦，所以想着重新弄个容器，但是很担心里面的数据都丢失了，所以只是`docker stop jenkins`，
    然后新开了上述容器，发现因为之前就设定了宿主机挂载目录，所以数据都在，那太棒了。为了防止意外，整体命令如下：
+
    ```bash
     docker stop jenkins
    ```
+
    ```bash
     # 直接备份老版本
    docker run -d --restart unless-stopped --name jenkins_dockerindocker_old \
@@ -70,11 +72,14 @@
    -u root \
    a3f949e5ebfd
    ```
+
    看效果么问题之后：
+
    ```bash
     # 直接备份老版本
    docker stop jenkins_dockerindocker_old
    ```
+
    ```bash
     # 直接备份老版本
    docker run -d --restart unless-stopped --name jenkins \
@@ -88,8 +93,13 @@
    -u root \
    a3f949e5ebfd
    ```
+
    ```bash
     # 删除备份容器
    docker rm -f jenkins_dockerindocker_old
    ```
+
    这个启动命令解决了时差问题，实现了 docker in docker，完成了宿主机备份数据
+
+6. 容器数据备份
+   参考资料：[详解复制备份 docker 容器数据的方法](https://www.jb51.net/article/183644.htm)

@@ -7,10 +7,7 @@ const path = require("path");
  * 静态资源
  */
 const static = require("koa-static");
-/**
- * 路由
- */
-const Router = require("koa-router");
+
 // const bodyparser = require('koa-bodyparser')
 
 const app = new Koa();
@@ -48,7 +45,7 @@ const test = require("./routes/test");
 app.use(test.routes());
 
 // 监听全局错误事件
-app.on("error", (err) => {
+app.on("error", err => {
   console.error(err);
 });
 
