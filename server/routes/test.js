@@ -3,21 +3,25 @@ const path = require("path");
 const router = new Router({ prefix: "/test" });
 
 // https://www.cnblogs.com/skying555/p/8647617.html
+// [日历组件]https://github.com/nhn/tui.calendar
 
 const mysql = require("mysql");
 const connConfig = require("../config/mysql.js");
-const connection = mysql.createConnection(connConfig);
+const pool = mysql.createPool(connConfig);
 
 const dbFuc = function(sql) {
   return new Promise(function(resolve, reject) {
-    connection.connect();
-    connection.query(sql, function(err, result) {
-      if (err) {
-        reject("[SELECT ERROR] - ", err.message);
-        return;
-      }
-      // reject(111);
-      resolve(result);
+    pool.getConnection(function(err, connection) {
+      if (err) throw err;
+      connection.query(sql, function(err, result) {
+        if (err) {
+          reject("[SELECT ERROR] - ", err.message);
+          return;
+        }
+        //回收pool
+        connection.release();
+        resolve(result);
+      });
     });
   });
 };
