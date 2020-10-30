@@ -130,6 +130,16 @@ var obj = {
       })
     }
   ],
+  "/interview/Micro-Frontends/": [
+    {
+      title: "interview——微前端篇",
+      collapsable: false,
+      sidebarDepth: 2,
+      children: getSideBar({
+        path: path.resolve(__dirname, "../../interview/Micro-Frontends")
+      })
+    }
+  ],
   "/interview/gmp/": [
     {
       title: "interview——gmp篇",
