@@ -229,3 +229,90 @@ var obj = {
       ```
    2. 查看`theme-defalut`源码，可以发现 banner 插件就是`Navbar.vue`,于是将它 copy 到`.vuepress/theme/components`下，然后就着修改即可，这就实现了组件覆写。
       参考资料：[主题的继承](https://www.vuepress.cn/theme/inheritance.html#%E7%BB%84%E4%BB%B6%E7%9A%84%E8%A6%86%E7%9B%96)
+
+## vuepress 文章右侧出现导航栏
+
+我在[Awesome VuePress](https://github.com/vuepressjs/awesome-vuepress)中搜索关键字`right`
+
+![Image from alias](./img/advanced/advanced_2.png)
+
+`npm i vuepress-plugin-right-anchor -D`
+
+```js
+// .vuepress/config.js
+module.exports = {
+  // ["vuepress-plugin-right-anchor"],
+    [
+      "vuepress-plugin-right-anchor",
+      {
+        showLevel: 2,
+        // showDepth: 2, // 显示h2,h3，但是这个参数没用，看源码发现的
+        ignore: [
+          "/"
+          // "/api/"
+        ],
+        expand: {
+          default: true,
+          trigger: "hover"
+        },
+        customClass: "your-customClass",
+        disableGlobalUI: false
+      }
+    ]
+};
+```
+
+这里遇到几个坑：
+
+# 左侧边栏配置菜单层级失效
+
+默认情况下，侧边栏会自动地显示由当前页面的标题（headers）组成的链接，并按照页面本身的结构进行嵌套，你可以通过 `themeConfig.sidebarDepth` 来修改它的行为。默认的深度是 1，它将提取到 h2 的标题，设置成 0 将会禁用标题（headers）链接，同时，最大的深度为 2，它将同时提取 h2 和 h3 标题。
+
+但是一个侧边栏的子组配置同时支持 sidebarDepth 字段用于重写默认显示的侧边栏深度(1)。
+
+而我在`nav: require("./nav/zh"),`中配置了 `sidebarDepth`导致的。
+
+# 右侧边栏配置菜单层级失效
+
+我按官网配置，但是层级总是跟`markdown.extractHeaders`相关，和我配置的`showDepth`无关。
+
+官网的原话是：
+
+![Image from alias](./img/advanced/advanced_3.png)
+
+首先看`vuepress-plugin-right-anchor`版本，发现是 0.4.5，所以应该用`showDepth`。
+
+接着看源码，如下：
+
+```js
+const { path } = require("@vuepress/shared-utils");
+
+module.exports = (options = {}, ctx) => {
+  return {
+    enhanceAppFiles: [path.resolve(__dirname, "enhanceAppFile.js")],
+    extendPageData($page) {
+      const { rightAnchor: frontmatterOptions = {} } = $page.frontmatter;
+
+      $page.rightAnchor = {
+        ...options,
+        ...frontmatterOptions,
+        isIgnore:
+          Array.isArray(options.ignore) &&
+          options.ignore.includes($page.regularPath),
+        expand: {
+          default: true,
+          trigger: "hover",
+          ...options.expand,
+          ...frontmatterOptions.expand
+        }
+      };
+
+      // TODO: Delete below when no longer support `showLevel`
+      $page.rightAnchor.showDepth = $page.rightAnchor.showLevel;
+    },
+    globalUIComponents: options.disableGlobalUI ? [] : ["GlobalRightAnchor"]
+  };
+};
+```
+
+原来是代码问题，`$page.rightAnchor.showDepth = $page.rightAnchor.showLevel`，导致 `showLevel` 才有效。

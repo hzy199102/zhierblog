@@ -75,7 +75,7 @@ var obj = {
     {
       title: "jenkins配置",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: jenkinsSideBar
       // children: [["", "介绍"], "vuepress"]
     }
@@ -84,7 +84,7 @@ var obj = {
     {
       title: "docker配置",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../docker")
       })
@@ -94,7 +94,7 @@ var obj = {
     {
       title: "2020",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../daily/2020")
       })
@@ -104,7 +104,7 @@ var obj = {
     {
       title: "学习进度",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../study")
       })
@@ -114,7 +114,7 @@ var obj = {
     {
       title: "接口",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../api")
       })
@@ -124,7 +124,7 @@ var obj = {
     {
       title: "interview——CSS篇",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/css")
       })
@@ -134,7 +134,7 @@ var obj = {
     {
       title: "interview——微前端篇",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/Micro-Frontends")
       })
@@ -144,7 +144,7 @@ var obj = {
     {
       title: "interview——gmp篇",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/gmp")
       })
@@ -154,7 +154,7 @@ var obj = {
     {
       title: "interview——nodejs篇",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/nodejs")
       })
@@ -165,7 +165,7 @@ var obj = {
     {
       title: "interview——js篇",
       collapsable: false,
-      sidebarDepth: 2,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/js")
       })
@@ -176,7 +176,7 @@ var obj = {
     {
       title: "interview——vuepress篇",
       collapsable: false,
-      sidebarDepth: 3,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/vuepress")
       })
@@ -186,7 +186,7 @@ var obj = {
     {
       title: "interview——webpack篇",
       collapsable: false,
-      sidebarDepth: 3,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/webpack")
       })
@@ -196,7 +196,7 @@ var obj = {
     {
       title: "interview——vue篇",
       collapsable: false,
-      sidebarDepth: 3,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/vue")
       })
@@ -206,7 +206,7 @@ var obj = {
     {
       title: "interview——vuessr篇",
       collapsable: false,
-      sidebarDepth: 3,
+      sidebarDepth: 0,
       children: getSideBar({
         path: path.resolve(__dirname, "../../interview/vuessr")
       })
