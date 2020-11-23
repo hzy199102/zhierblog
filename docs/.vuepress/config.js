@@ -59,6 +59,7 @@ module.exports = {
         defaultTitle: ""
       }
     ],
+    ["demo-container"],
     // ["vuepress-plugin-right-anchor"],
     [
       "vuepress-plugin-right-anchor",
