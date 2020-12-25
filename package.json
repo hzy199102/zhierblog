@@ -15,7 +15,8 @@
     "koa-router": "^9.4.0",
     "koa-static": "^5.0.0",
     "mysql": "^2.18.1",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vuepress-theme-reco": "^1.6.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",

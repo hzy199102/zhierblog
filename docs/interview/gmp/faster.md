@@ -18,6 +18,14 @@ PC 端软件可以内嵌多个网页，每个网页都是独立的，所以在�
    但是如何在网页上就能通过 js 判断是否显示呢？[【第 2037 期】深入了解页面生命周期 API](https://mp.weixin.qq.com/s/R_qYZtK2ZZA_d5FgJXLvwA)给了我灵感，核心就在`document.visibilityState`，经过测试，内嵌网页上支持。所以思路变成刚开始网页判断是否处于隐藏状态，如果是，就不进行 api 请求！这个可以通过一个定时器去处理，
    只要记住在合适的时候注销定时器，防止内存溢出。
 
+   现在有了更好的做法：
+
+   ```js
+   document.addEventListener("visibilitychange", function() {
+     console.log(document.visibilityState);
+   });
+   ```
+
 ## 减少 js 体积
 
 1. 缓存 js（不可行）
@@ -181,7 +189,7 @@ PC 端软件可以内嵌多个网页，每个网页都是独立的，所以在�
 
       上图的 app.js 变成 1.8M，少了 300K，效果明显。
 
-2. 在 vendor.js 中发现 vue-resource，vue，jquery，mock，其中 mock 在生产环境不在需要。发现技巧是搜索`/*!`，任何包开头都会有注释。
+2. 在 vendor.js 中发现 vue-resource，vue，jquery，mock，其中 mock 在生产环境不在需要。发现技巧是搜索`/*!`，任何包开头都会有注释。<span style="color: red;">而且包括版本号。</span>
    vendor.js 是依赖的第三方库，它上面的内容都可以参照 vue.js 的处理手段。
    这里曾经遇到一个坑，我本打算直接使用这个第三方库，就是 gmp-side 下载这个 vendor.js，然后 gmp-project 接受这个文件，但是发现不行，原因有 2 个：
 
@@ -191,3 +199,215 @@ PC 端软件可以内嵌多个网页，每个网页都是独立的，所以在�
    终上所述，还是决定在 vendor.js 中一个个核对 npm 包，把它们一一下载并上传到稳定的 cdn 源上，之前想用官方 cdn，后来发现很不稳定，不能用于企业级应用，就是 demo 级别的。
 
 3. 接下来要做的是把 eleme-ui，vue，vue-resource，jquery，mock 全部做一样的处理，关键在于怎么设计出满足生产环境和开发环境的架构。这是接下来要处理的。
+
+   1. 尝试剥离 elemetUI，这时候会涉及到异步下载多文件，但是下载完成之后同步执行的问题，所以最好使用 promise 来控制，并且用回调函数的方法保证正确的执行顺序
+
+      ![图片](./img/faster/4.png)
+
+      如图，app.js 已经降到 1.3M 了。
+
+      ```js
+      initJS: function(obj) {
+        var source = {};
+        var downloadArr = [];
+        for (var i = 0; i < obj.needjs.length; i++) {
+          downloadArr.push(this.download[obj.needjs[i]]());
+        }
+        Promise.all(downloadArr)
+          .then(res => {
+            for (var i = 0; i < res.length; i++) {
+              console.log("初始化公共文件:" + obj.needjs[i]);
+              source[obj.needjs[i]] = res[i];
+              new Function(base64.Base64.decode(res[i]))(window);
+            }
+            window.onSendNeedjs = function(str) {
+              MainInteractor.broadcast("getNeedjs", JSON.stringify(source));
+            };
+            MainInteractor.registerCallBack("sendNeedjs", "onSendNeedjs");
+            // console.log(Vue);
+            obj.next && obj.next();
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      },
+      download: {
+        common: function(obj) {
+          return new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+              if (xhr.readyState == 4) {
+                if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                  resolve(base64.Base64.encode(xhr.responseText));
+                } else {
+                  //
+                }
+              }
+            };
+            xhr.open("get", obj.url, false);
+            xhr.send(null);
+          });
+        },
+        "vue-js": function() {
+          return this.common({
+            url: "https://aecore-static.glodon.com/prod-ops/gmp-cdn/vue@2.6.11.js"
+            // url: "https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"
+          });
+        },
+        "element-ui-js": function() {
+          return this.common({
+            url:
+              "https://aecore-static.glodon.com/prod-ops/gmp-cdn/element-ui@2.13.0.min.js"
+          });
+        }
+      },
+      /**
+      * 附属页面发送广播获取共享js，并且处理接受来的共享js
+      * @param {*} obj
+      *    needjs：需要的共享js的数组，例：["vue-js", "element-ui-js"]
+      */
+      initJS2: function(obj) {
+        var timer = null;
+        var source = null;
+        window.onGetNeedjs = function(str) {
+          clearInterval(timer);
+          if (source) return;
+          source = JSON.parse(str);
+          for (var i = 0; i < obj.needjs.length; i++) {
+            if (source[obj.needjs[i]]) {
+              console.log("初始化公共文件:" + obj.needjs[i]);
+              new Function(base64.Base64.decode(source[obj.needjs[i]]))(window);
+            } else {
+              console.log("公共文件不存在:" + obj.needjs[i]);
+            }
+          }
+          // console.log(Vue);
+          obj.next && obj.next();
+        };
+        MainInteractor.registerCallBack("getNeedjs", "onGetNeedjs");
+        timer = setInterval(() => {
+          // 全部公共文件都要获取，但是可以按needjs指定初始化其中部分
+          MainInteractor.broadcast("sendNeedjs", obj.needjs.join(","));
+        }, 250);
+      }
+      ```
+
+      ```js
+      // import Vue from "vue";
+      import App from "./App";
+      /**
+       * 引入element-ui控件
+       */
+      // import ElementUI from "element-ui";
+      import "element-ui/lib/theme-chalk/index.css";
+      /**
+       * 引入公共样式
+       */
+      import "@common/css/gmp/gmp.css";
+      /**
+       * 引入公共方法库
+       */
+      import ToolManager from "@common/js/ToolManager.js";
+      /**
+       * 引入qt中间件
+       */
+      import("@common/middleware/qwebmiddleware.js").then(
+        async qtInteractor => {
+          var next = str => {
+            /**
+             * 引入api
+             */
+            import("@common/api/index").then(interceptor => {
+              // Vue.use(ElementUI);
+
+              Vue.prototype.api = interceptor.default;
+
+              Vue.prototype.ToolManager = ToolManager;
+              /**
+               * 另外建立一条事件线
+               */
+              Vue.prototype.eventHub = Vue.prototype.eventHub || new Vue();
+
+              /**
+               * 初始化
+               */
+              var app = new Vue({
+                el: "#app",
+                render: h => h(App),
+                created: function() {
+                  this.eventHub.$on("Authorization", function(Authorization) {
+                    console.log("Authorization", Authorization);
+                    Vue.http.headers.common["Authorization"] = Authorization;
+                  });
+                }
+              });
+              // 将vue实例传入interceptor中
+              interceptor.default.init(app);
+            });
+          };
+          await qtInteractor.default.init({
+            source: "gmp-project",
+            next: next,
+            needjs: ["vue-js", "element-ui-js"]
+          });
+        }
+      );
+      ```
+
+   2. 尝试剥离 elemetUI 的 css 文件，这个和 js 的处理方式又不同，怎么运行 css 字符串呢？
+
+      ![图片](./img/faster/5.png)
+
+      如图，app.js 已经降到 1.1M 了。
+
+      ```js
+      // 没做兼容性处理，但是在qt上已经有效
+      includeStyleElement: function(styleId, styles) {
+        if (document.getElementById(styleId)) {
+          return false;
+        }
+        var style = document.createElement("style");
+        style.id = styleId;
+        (document.getElementsByTagName("head")[0] || document.body).appendChild(
+          style
+        );
+        style.appendChild(document.createTextNode(styles));
+      },
+      ```
+
+   3. 尝试剥离 vue-resource，按之前的套路，没啥难度，但是，app.js 的体积没减少，很奇怪，可能是其他地方减少了
+
+   4. 尝试剥离 jquery，[jquery 源码](http://code.jquery.com/jquery-3.4.1.min.js)
+
+      这里遇到个问题，就是
+
+      ```js
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+        'window.jQuery': 'jquery',
+        'window.$': 'jquery',
+      }),
+      ```
+
+      jquery 是在 webpack 全局注入的，为了不影响其他项目，所以要在 webpack 上根据项目的不同特殊处理。
+
+      ![图片](./img/faster/6.png)
+
+      如图，app.js 已经降到 930k 了。
+
+   5. 尝试移除 mock，因为并不需要，这个的确是框架需要的，尤其是开发环境，但是目前根本没用到，但是阴差阳错一直在，去掉它。至少在生产环境要去掉。
+
+      目前在没啥区别，但是在打包之后就能发现明显体积差别。
+
+   6. 最后看下生产环境优化前后的对比：
+
+      ![图片](./img/faster/7.png)
+
+4. 待优化项目：
+
+   1. element-ui 也可以按需加载，目前是全部加载
+
+5. 至此，js 文件在内嵌网页上共用完成，就差组件级别的延迟加载。
+
+## 图片处理

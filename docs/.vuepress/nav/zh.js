@@ -1,5 +1,10 @@
 module.exports = [
   {
+    text: "日历",
+    ariaLabel: "calendar",
+    link: "/calendar/"
+  },
+  {
     text: "百宝盒",
     ariaLabel: "more",
     items: [

@@ -13,7 +13,7 @@ features:
 footer: 得上求中
 ---
 
-<div style="text-align: center">
+<!-- <div style="text-align: center">
   <Bit/>
 </div>
 
@@ -38,4 +38,4 @@ footer: 得上求中
 
 # 账号和密码千万不要放到 git 上
 
-配置文件本地和服务器各准备一份，但是不通过 git
+配置文件本地和服务器各准备一份，但是不通过 git -->

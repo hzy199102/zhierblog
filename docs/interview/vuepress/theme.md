@@ -77,7 +77,128 @@
 
 ### layouts/Layout.vue
 
-在确认了`index.js`和`enhanceApp.js`之后，切入点就是这个文件了，官网有说明，这是布局组件，必需的。根据这个组件，终于可以深入 vue 组件这条线了。
+1. 在确认了`index.js`和`enhanceApp.js`之后，切入点就是这个文件了，官网有说明，这是布局组件，必需的。根据这个组件，终于可以深入 vue 组件这条线了。
+
+2. 支持 home 和 homeblog2 个基础布局组件，`<component v-if="$frontmatter.home" :is="homeCom"/>`
+
+### layouts/HomeBlog.vue
+
+1. pagation 组件
+
+```html
+<pagation
+  class="pagation"
+  :total="$recoPosts.length"
+  :currentPage="currentPage"
+  @getCurrentPage="getCurrentPage"
+/>
+```
+
+找遍代码也没看到这个组件，估计是全局注入的，果然发现
+
+```js
+plugins: ["@vuepress-reco/pagation"];
+```
+
+然后在这个插件中发现
+
+```js
+const { path } = require("@vuepress/shared-utils");
+
+module.exports = (options, context) => {
+  const { perPage = 10 } = options || {};
+  return {
+    define() {
+      return {
+        PERPAGE: perPage
+      };
+    },
+    name: "@vuepress-reco/vuepress-plugin-pagation",
+    enhanceAppFiles: [
+      path.resolve(__dirname, "./bin/enhanceAppFile.js"),
+      () => ({
+        name: "dynamic-pagation",
+        content: `export default ({ Vue }) => {
+          Vue.mixin({
+            computed: {
+              $perPage () { return ${perPage} }
+            }
+          })
+        }`
+      })
+    ]
+  };
+};
+```
+
+```js
+import Pagation from "./Pagation.vue";
+
+export default ({ Vue }) => {
+  Vue.component("Pagation", Pagation);
+};
+```
+
+这里的动态引入全局变量`$perPage`值得学习。
+
+2. `$recoPosts`
+
+这个全局变量来自`posts.js`，它在 enhanceApp.js 中以 vue.mixin 的方式引入。
+
+3. `filterPosts`，过滤博客数据
+
+```js
+// 过滤博客数据
+export function filterPosts(posts, isTimeline) {
+  posts = posts.filter((item, index) => {
+    const {
+      title,
+      frontmatter: { home, date, publish }
+    } = item;
+    // 过滤多个分类时产生的重复数据
+    if (posts.indexOf(item) !== index) {
+      return false;
+    } else {
+      const someConditions =
+        home == true || title == undefined || publish === false;
+      const boo =
+        isTimeline === true
+          ? !(someConditions || date === undefined)
+          : !someConditions;
+      return boo;
+    }
+  });
+  return posts;
+}
+```
+
+这段代码有 2 点注意：
+
+- 变量的命名：`const { title, frontmatter: { home, date, publish } } = item;`
+- 过滤多个分类时产生的重复数据，filter 和 indexOf 的完美运用
+
+3. `sticky`，文章排序，之前只根据文章的 frontmatter.date，现在可以动态指定排序了。
+
+```js
+// 排序博客数据
+export function sortPostsByStickyAndDate(posts) {
+  debugger;
+  posts.sort((prev, next) => {
+    const prevSticky = prev.frontmatter.sticky;
+    const nextSticky = next.frontmatter.sticky;
+    if (prevSticky && nextSticky) {
+      return prevSticky == nextSticky
+        ? compareDate(prev, next)
+        : prevSticky - nextSticky;
+    } else if (prevSticky && !nextSticky) {
+      return -1;
+    } else if (!prevSticky && nextSticky) {
+      return 1;
+    }
+    return compareDate(prev, next);
+  });
+}
+```
 
 vue3.0 的知识，目前看是 setup 我还深入了解
 
@@ -339,6 +460,146 @@ AlgoliaSearch 的使用
 
 ### comoonents/NavLinks.vue
 
+1. 站点源码外链设计，没有使用简单的 if-else 写法，而是使用正则智能匹配，更有范。
+
+   ```js
+   repoLabel () {
+     if (!this.repoLink) return
+     if (this.$themeConfig.repoLabel) {
+       return this.$themeConfig.repoLabel
+     }
+
+     const repoHost = this.repoLink.match(/^https?:\/\/[^/]+/)[0]
+     const platforms = ['GitHub', 'GitLab', 'Bitbucket']
+     for (let i = 0; i < platforms.length; i++) {
+       const platform = platforms[i]
+       if (new RegExp(platform, 'i').test(repoHost)) {
+         return platform
+       }
+     }
+
+     return 'Source'
+   }
+   ```
+
+2. 加入标签和分类，使用`@vuepress/plugin-blog`插件，将分类和标签的相关信息直接存在 `$categories` 和 `$tags` 这两个全局变量中。
+   在具体 md 文章中，加入：
+
+   ```md
+   ---
+   title: first page in category1
+   date: 2018-12-15
+   tags:
+     - tag1
+   categories:
+     - category1
+   ---
+   ```
+
+   所以就能从`this.$categories`和`this.$tags`取到对应文章列表，reco 专门针对这 2 个属性做了分类页和标签页。
+
+   ```js
+   // blogConfig 的处理，根绝配置自动添加分类和标签
+   const blogConfig = this.$themeConfig.blogConfig || {};
+   const isHasCategory = userNav.some(item => {
+     if (blogConfig.category) {
+       return item.text === (blogConfig.category.text || "分类");
+     } else {
+       return true;
+     }
+   });
+   if (!isHasCategory && Object.hasOwnProperty.call(blogConfig, "category")) {
+     const category = blogConfig.category;
+     const $categories = this.$categories;
+     userNav.splice(parseInt(category.location || 2) - 1, 0, {
+       items: $categories.list.map(item => {
+         item.link = item.path;
+         item.text = item.name;
+         return item;
+       }),
+       text: category.text || "分类",
+       type: "links",
+       icon: "reco-category"
+     });
+   }
+   ```
+
+   上述代码有点意思，可以借鉴。
+
+   最终效果是导航栏会加入下拉选择的 category 和直接点击的 tag
+
+3. `@vuepress/plugin-blog`插件使用 permalink 概念，可以让路由不像文档结构一样，可自定义，[永久链接](https://vuepress.vuejs.org/zh/guide/permalinks.html#%E8%83%8C%E6%99%AF),
+   ```js
+   [
+     "@vuepress/plugin-blog",
+     {
+       permalink: "/:regular",
+       frontmatters: [
+         {
+           id: "tags",
+           keys: ["tags"],
+           path: "/tag/",
+           layout: "Tags",
+           scopeLayout: "Tag"
+         },
+         {
+           id: "categories",
+           keys: ["categories"],
+           path: "/categories/",
+           layout: "Categories",
+           scopeLayout: "Category"
+         },
+         {
+           id: "timeline",
+           keys: ["timeline"],
+           path: "/timeline/",
+           layout: "TimeLines",
+           scopeLayout: "TimeLine"
+         }
+       ]
+     }
+   ],
+   ```
+
+### comoonents/NavLink.vue
+
+1. exact
+
+```vue
+<router-link
+  class="nav-link"
+  :to="link"
+  v-if="!isExternal(link)"
+  :exact="exact"
+>
+    <reco-icon :icon="`${item.icon}`" />
+    {{ item.text }}
+  </router-link>
+```
+
+```js
+computed: {
+  link () {
+    // 这个方法会一个可用的path，主要处理md/html的后缀，已经hash，还有/结尾的地址
+      return ensureExt(this.item.link)
+    },
+    exact () {
+      if (this.$site.locales) {
+        return Object.keys(this.$site.locales).some(rootLink => rootLink === this.link)
+      }
+      return this.link === '/'
+    }
+  },
+```
+
+不加这个，导航栏的首页会一直处于亮显状态
+
+### comoonents/DropdownLink.vue（没懂）
+
+1. 下拉框 css 样式
+   分 PC 端浏览器和移动端浏览器的样式区别，非常值得学习
+2. 下拉框展示的动画效果
+
 ## 知识点
 
 ### prism-themes
@@ -448,3 +709,80 @@ reco 的主题似乎是从 cdn 去获取，这样能减少打包体积，不过 
      }
    });
    ```
+
+### vuepress-plugin-bulletin-popover
+
+这个插件是个完美的示例！
+
+![图片](./img/theme/1.png)
+
+![图片](./img/theme/2.png)
+
+```js
+const { path } = require("@vuepress/shared-utils");
+
+module.exports = (options, context) => ({
+  // 这些属性值能在vue中被直接引用
+  define() {
+    // 来自插件配置的传参
+    const { title, width, body, footer } = options || {};
+    return {
+      WIDTH: width || "260px",
+      TITLE: title || "公告",
+      BODY: body || [],
+      FOOTER: footer || []
+    };
+  },
+  name: "@vuepress-reco/vuepress-plugin-bulletin-popover",
+  enhanceAppFiles: [path.resolve(__dirname, "./bin/enhanceAppFile.js")],
+  globalUIComponents: "Bulletin"
+});
+```
+
+`define`：让 vue 组件直接使用一些变量数据。非常有用。
+`globalUIComponents`：注入全局 UI
+`enhanceAppFiles`：vue 组件全局注入，代码如下：
+
+```js
+import Bulletin from "./Bulletin.vue";
+
+export default ({ Vue }) => {
+  Vue.component("Bulletin", Bulletin);
+};
+```
+
+然后就能在`Bulletin`组件完成图中的公告弹窗了，至于`const { title, width, body, footer } = options || {};`就能得到来自插件配置的传参，如下：
+
+```js
+plugins: [
+    [
+      "@vuepress-reco/vuepress-plugin-bulletin-popover",
+      {
+        body: [
+          {
+            type: "title",
+            content: "欢迎加入QQ交流群 🎉🎉🎉",
+            style: "text-aligin: center;"
+          },
+          {
+            type: "image",
+            src: "/rvcode_qq.png"
+          }
+        ],
+        footer: [
+          {
+            type: "button",
+            text: "打赏",
+            link: "/donate"
+          },
+          {
+            type: "button",
+            text: "打赏",
+            link: "/donate"
+          }
+        ]
+      }
+    ]
+  ]
+};
+```

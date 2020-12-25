@@ -1,6 +1,8 @@
 const { path } = require("@vuepress/shared-utils");
 console.log(path.resolve(__dirname, "../", "demo"));
 module.exports = {
+  // theme: "reco",
+  theme: require.resolve("../../theme-reco/vuepress-theme-reco"),
   base: "/vuepress/",
   title: "zhierblog",
   description: "这是止耳的vuepress博客",
@@ -43,6 +45,9 @@ module.exports = {
     extractHeaders: ["h2", "h3"]
   },
   themeConfig: {
+    type: "blog",
+    // 自动形成侧边导航
+    subSidebar: "auto",
     logo: "/zhier.jpg",
     lastUpdated: "Last Updated",
     smoothScroll: true,
@@ -61,23 +66,23 @@ module.exports = {
     ],
     ["demo-container"],
     // ["vuepress-plugin-right-anchor"],
-    [
-      "vuepress-plugin-right-anchor",
-      {
-        showLevel: 2,
-        // showDepth: 2, // 显示h2,h3，但是这个参数没用，看源码发现的
-        ignore: [
-          "/"
-          // "/api/"
-        ],
-        expand: {
-          default: false,
-          trigger: "click"
-        },
-        customClass: "your-customClass",
-        disableGlobalUI: false
-      }
-    ],
+    // [
+    //   "vuepress-plugin-right-anchor", // 右侧边栏插件，现在用reco自带
+    //   {
+    //     showLevel: 2,
+    //     // showDepth: 2, // 显示h2,h3，但是这个参数没用，看源码发现的
+    //     ignore: [
+    //       "/"
+    //       // "/api/"
+    //     ],
+    //     expand: {
+    //       default: false,
+    //       trigger: "click"
+    //     },
+    //     customClass: "your-customClass",
+    //     disableGlobalUI: false
+    //   }
+    // ],
     [
       ("vuepress-plugin-container",
       {
