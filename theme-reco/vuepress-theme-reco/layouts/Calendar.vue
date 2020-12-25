@@ -12,6 +12,12 @@
 import Common from "@theme/components/Common";
 import { ModuleTransition } from "@vuepress-reco/core/lib/components";
 import moduleTransitonMixin from "@theme/mixins/moduleTransiton";
+import Calendar from "tui-calendar";
+import "tui-calendar/dist/tui-calendar.css";
+
+// If you use the default popups, use this.
+import "tui-date-picker/dist/tui-date-picker.css";
+import "tui-time-picker/dist/tui-time-picker.css";
 
 export default {
   mixins: [moduleTransitonMixin],
@@ -23,7 +29,9 @@ export default {
 
   computed: {},
 
-  mounted() {},
+  mounted() {
+    console.log(Calendar);
+  },
 
   methods: {},
 
