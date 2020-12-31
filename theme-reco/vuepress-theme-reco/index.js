@@ -58,11 +58,11 @@ module.exports = (options, ctx) => ({
             scopeLayout: "TimeLine"
           },
           {
-            id: "calendar",
-            keys: ["calendar"],
-            path: "/calendar/",
-            layout: "Calendar",
-            scopeLayout: "Calendar"
+            id: "calendars",
+            keys: ["calendars"],
+            path: "/calendars/",
+            layout: "Calendars",
+            scopeLayout: "Calendars"
           }
         ]
       }
