@@ -10,10 +10,15 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
+    "@types/chance": "^1.1.0",
+    "bootstrap": "^4.5.3",
+    "chance": "^1.1.7",
     "core-js": "^3.4.4",
+    "jquery": "^3.5.1",
     "koa": "^2.13.0",
     "koa-router": "^9.4.0",
     "koa-static": "^5.0.0",
+    "moment": "^2.29.1",
     "mysql": "^2.18.1",
     "tui-calendar": "^1.13.0",
     "vue": "^2.6.10",

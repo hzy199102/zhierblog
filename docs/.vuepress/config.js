@@ -1,4 +1,5 @@
 const { path } = require("@vuepress/shared-utils");
+const webpack = require("webpack");
 console.log(path.resolve(__dirname, "../", "demo"));
 module.exports = {
   // theme: "reco",
@@ -18,12 +19,31 @@ module.exports = {
       .use("file-loader")
       .loader("file-loader")
       .end();
+    config.plugin("provide").use(webpack.ProvidePlugin, [
+      {
+        $: "jquery",
+        jquery: "jquery",
+        jQuery: "jquery",
+        "window.jQuery": "jquery",
+        moment: "moment",
+        Chance: "chance",
+        global: [
+          path.resolve(
+            __dirname,
+            "../../",
+            "theme-reco/vuepress-theme-reco/helpers/global.js"
+          ),
+          "global"
+        ]
+      }
+    ]);
   },
   configureWebpack: {
     resolve: {
       alias: {
         // 由于代码段的导入将在 webpack 编译之前执行，因此你无法使用 webpack 中的路径别名，此处的 @ 默认值是 process.cwd()。所以@demo无效
         "@demo": path.resolve(__dirname, "../", "demo")
+        // chance: path.join(__dirname, "../../node_modules", "chance")
       }
     }
   },

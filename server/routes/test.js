@@ -1,6 +1,7 @@
 const Router = require("koa-router");
 const path = require("path");
 const router = new Router({ prefix: "/test" });
+// const chance = require("chance");
 
 // https://www.cnblogs.com/skying555/p/8647617.html
 // [日历组件]https://github.com/nhn/tui.calendar
@@ -27,6 +28,14 @@ const dbFuc = function(sql) {
 };
 
 router.get("/api", async ctx => {
+  ctx.body = {
+    code: 200,
+    message: "错在陈醋当成墨，写尽半生纸上酸。"
+  };
+});
+
+router.get("/api2", async ctx => {
+  // console.log(new chance().string());
   ctx.body = {
     code: 200,
     message: "错在陈醋当成墨，写尽半生纸上酸。"

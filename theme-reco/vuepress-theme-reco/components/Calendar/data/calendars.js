@@ -42,8 +42,6 @@ export function hexToRGBA(hex) {
 }
 
 export function init() {
-  CalendarList = [];
-
   var calendar;
   var id = 0;
 

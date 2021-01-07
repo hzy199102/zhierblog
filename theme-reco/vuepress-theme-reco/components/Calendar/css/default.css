@@ -1,73 +1,67 @@
 @import url(https://fonts.googleapis.com/css?family=Noto+Sans);
 
-.calendar-wrapper {
+body {
   font-family: "Noto Sans", sans-serif;
   font-size: 12px;
 }
 
-.calendar-wrapper * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
 /**  custom bootstrap - start */
-.calendar-wrapper .btn {
+.btn {
   border-radius: 25px;
   border-color: #ddd;
 }
 
-.calendar-wrapper .btn:hover {
+.btn:hover {
   border: solid 1px #bbb;
   background-color: #fff;
 }
 
-.calendar-wrapper .btn:active {
+.btn:active {
   background-color: #f9f9f9;
   border: solid 1px #bbb;
   outline: none;
 }
 
-.calendar-wrapper .btn:disabled {
+.btn:disabled {
   background-color: #f9f9f9;
   border: solid 1px #ddd;
   color: #bbb;
 }
 
-.calendar-wrapper .btn:focus:active,
+.btn:focus:active,
 .btn:focus,
 .btn:active {
   outline: none;
 }
 
-.calendar-wrapper .open > .dropdown-toggle.btn-default {
+.open > .dropdown-toggle.btn-default {
   background-color: #fff;
 }
 
-.calendar-wrapper .dropdown-menu {
+.dropdown-menu {
   top: 25px;
   padding: 3px 0;
   border-radius: 2px;
   border: 1px solid #bbb;
 }
 
-.calendar-wrapper .dropdown-menu > li > a {
+.dropdown-menu > li > a {
   padding: 9px 12px;
   cursor: pointer;
 }
 
-.calendar-wrapper .dropdown-menu > li > a:hover {
+.dropdown-menu > li > a:hover {
   background-color: rgba(81, 92, 230, 0.05);
   color: #333;
 }
 
-.calendar-wrapper .bi15 {
+.bi15 {
   width: 15px;
   height: 15px;
 }
 /** custom fontawesome - end */
 
-.calendar-wrapper .calendar-icon {
+.calendar-icon {
   width: 14px;
   height: 14px;
 }
@@ -102,12 +96,12 @@
   cursor: pointer;
 }
 
-.calendar-wrapper .lnb-new-schedule {
+.lnb-new-schedule {
   padding-bottom: 12px;
   border-bottom: 1px solid #e5e5e5;
 }
 
-.calendar-wrapper .lnb-new-schedule-btn {
+.lnb-new-schedule-btn {
   height: 100%;
   font-size: 14px;
   background-color: #ff6618;
@@ -118,7 +112,7 @@
   font-weight: bold;
 }
 
-.calendar-wrapper .lnb-new-schedule-btn:hover {
+.lnb-new-schedule-btn:hover {
   height: 100%;
   font-size: 14px;
   background-color: #e55b15;
@@ -129,7 +123,7 @@
   font-weight: bold;
 }
 
-.calendar-wrapper .lnb-new-schedule-btn:active {
+.lnb-new-schedule-btn:active {
   height: 100%;
   font-size: 14px;
   background-color: #d95614;
@@ -140,27 +134,27 @@
   font-weight: bold;
 }
 
-.calendar-wrapper .lnb-calendars > div {
+.lnb-calendars > div {
   padding: 12px 16px;
   border-bottom: 1px solid #e5e5e5;
   font-weight: normal;
 }
 
-.calendar-wrapper .lnb-calendars-d1 {
+.lnb-calendars-d1 {
   padding-left: 8px;
 }
 
-.calendar-wrapper .lnb-calendars-d1 label {
+.lnb-calendars-d1 label {
   font-weight: normal;
 }
 
-.calendar-wrapper .lnb-calendars-item {
+.lnb-calendars-item {
   min-height: 14px;
   line-height: 14px;
   padding: 8px 0;
 }
 
-.calendar-wrapper .lnb-footer {
+.lnb-footer {
   color: #999;
   font-size: 11px;
   position: absolute;
@@ -183,12 +177,12 @@
   line-height: 30px;
 }
 
-.calendar-wrapper .move-today {
+.move-today {
   padding: 0 16px;
   line-height: 30px;
 }
 
-.calendar-wrapper .move-day {
+.move-day {
   padding: 8px;
   font-size: 0;
 }
@@ -199,11 +193,11 @@
   vertical-align: middle;
 }
 
-.calendar-wrapper .dropdown-menu-title .calendar-icon {
+.dropdown-menu-title .calendar-icon {
   margin-right: 8px;
 }
 
-.calendar-wrapper .calendar-bar {
+.calendar-bar {
   width: 16px;
   height: 16px;
   margin-right: 5px;
@@ -212,13 +206,13 @@
   vertical-align: middle;
 }
 
-.calendar-wrapper .calendar-name {
+.calendar-name {
   font-size: 14px;
   font-weight: bold;
   vertical-align: middle;
 }
 
-.calendar-wrapper .schedule-time {
+.schedule-time {
   color: #005aff;
 }
 
@@ -231,13 +225,13 @@
 }
 
 /** custom fontawesome */
-.calendar-wrapper .fa {
+.fa {
   width: 12px;
   height: 12px;
   margin-right: 2px;
 }
 
-.calendar-wrapper .weekday-grid-more-schedules {
+.weekday-grid-more-schedules {
   float: right;
   margin-top: 4px;
   margin-right: 6px;
