@@ -91,67 +91,33 @@
 
         在 vue 的生命周期无法使用，它的使用场景是在其他 js 文件中引用 tui 的时候。
 
-        引入 npm 包[chance](https://chancejs.com/usage/node.html)的时候，遇到了 2 个大坑，
-
-        1. 使用`var chance = require("chance")`,结果发现这个`chance`是全局的，非本地的，怎么也引不到本项目的 node_modules 下的`chance`，后来才明白因为优先查找 ts 文件，查找顺序是从本项目的 node_modules 下的 chance 中是否有 ts——>找全局的 typescript 下的 chance 中是否有 ts——>node_module 下的 chance 中是否有 js，这个我是先修改了全局的 typescript 下的 chance 文件夹名称为 chance2，然后发现`chance`指向正常，才确定的，然后发现只要`yarn add @types/chance`，就可以在本项目下的 node_modules 下拥有 chance 的 ts 格式。这里面涉及到<span style="color: red;">一个知识点：引用 npm 包的查找路径！</span>
-        2. 使用`var chance = require("chance")`后有错误提示`Uncaught (in promise) ReferenceError: global is not defined`，如图：
-
-        ![图片](./img/calendar/14.png)
-
-        这里耽误 4 个多小时，在 nodejs 中没什么问题，但是在 web 上会有，最后在[stackoverflow——Uncaught (in promise): ReferenceError: global is not defined](https://stackoverflow.com/questions/58693720/uncaught-in-promise-referenceerror-global-is-not-defined)中找到灵感，代码如下：
-
-        ```js
-        window.global = window;
-        var chance = require("chance")();
-        ```
-
-        这里涉及到<span style="color: red;">一个知识点：global 到底是什么，在 nodejs 环境和 web 环境下，它有什么不同，这个在参考 jquery 的源码后，会得到一定的领悟！</span>
-
-        尝试将公共的第三方插件的变量通过 ProvidePlugin 插件，不在需要每个文件都引用，需要处理的包括：moment，global，chance，jquery
-
-        ```js
-        chainWebpack: config => {
-            // console.log(config.module);
-            // webp Loader
-            // 支持webp
-            config.module
-            .rule("webp")
-            .test(/\.webp$/)
-            .use("file-loader")
-            .loader("file-loader")
-            .end();
-            config.plugin("provide").use(webpack.ProvidePlugin, [
-            {
-                $: "jquery",
-                jquery: "jquery",
-                jQuery: "jquery",
-                "window.jQuery": "jquery",
-                moment: "moment",
-                global: [
-                path.resolve(
-                    __dirname,
-                    "../../",
-                    "theme-reco/vuepress-theme-reco/helpers/global.js"
-                ),
-                "global"
-                ]
-            }
-            ]);
-        },
-        ```
-
-        ```js
-        // global.js
-        export var global = typeof window !== "undefined" ? window : this;
-        ```
-
-        <span style="color: red;">一个知识点：注意 global.js 文件中公共变量的导出写法，以及在`webpack.ProvidePlugin`中的引用方式</span>，
-
-        <span style="color: red;">一个知识点：global 如何作为全局变量，并且值为 web 环境下才有的 window 对象。这里参考了 jquery 的源码！</span>，如下图：
-
-        ![图片](./img/calendar/15.png)
+        引入 npm 包[chance](https://chancejs.com/usage/node.html)的时候，遇到问题的解决方案：[看这里](./calendar.md#js-篇-引入第三方库-chance)
 
         至此：vuepress 引入 calendar 官方 demo 基本完成！
+
+    3.  开始处理 calendar 插件的基本使用方式，[calendar 官网](https://nhn.github.io/tui.calendar/latest/tutorial-example00-basic)，尝试将数据改为真实数据。
+        1. 熟悉 API
+           太难了，直接从需求出发，遇到问题在找 API
+    4.  数据存储到 mysql
+    5.  主题处理，和 zhierblog 的主题兼容
+
+        1. demo 中的`src/js/theme/themeConfig.js`就是主题，可以参考其中的属性，也可以在`dist/tui-calendar.js`中搜索`timegridLeft`，这里是更加详细的，也能发现有部分 style 配置在 themeconfig.js 中没写全，可在这里找到最全的。然后在初始化中加入 theme 属性即可。
+
+           ```js
+           this.cal = new Calendar("#calendar", {
+                theme: {
+                    "common.backgroundColor": "black",
+                    'week.timegridLeftAdditionalTimezone.backgroundColor': 'black',
+                    'week.timegridLeft.backgroundColor': 'black',
+                    'month.moreView.backgroundColor': 'black',
+                }
+           }
+           ```
+
+        2. `cal.setTheme`可以实时修正主题样式
+
+    6.  优化程序，减少 cdn 的链接，尽量本地化，然后减少文件体积，现在 3M+，太大了，然后优化代码结构，现在逻辑代码全放在一个 vue 文件里面，太臃肿了。
+    7.  竞品分析：[fullcalendar.io DEMO](https://fullcalendar.io/#demos),[fullcalendar.io GITHUB](https://github.com/fullcalendar/fullcalendar)
 
 ## 遇到的问题
 
@@ -159,4 +125,181 @@
 
 ### vuepress 配置篇
 
-### js 篇
+### js 篇——引入第三方库 chance
+
+这本来是个非常简单的事情，看官网以及任何 demo 示例都是如下：
+
+```js
+// yarn add chance
+var chance = require("chance")();
+console.log(chance.string());
+```
+
+结果居然不成功，遇到如下问题：
+
+#### chance 引用的是全局模块，而非本地模块
+
+当在 vscode 中，鼠标点击代码中的`var chance = require("chance")();`的`chance`时候，发现它引用的是`C:\Users\用户\AppData\Local\Microsoft\TypeScript\3.5\node_modules\@types\chance`中的`index.d.ts`，只有在把这个文件夹改名`chance2`的时候，才会引用本地模块`node_modules/chance/chance.js`,然后我发现一个是 ts 文件，一个是 js 文件，为了保持一致性，我发现在`index.d.ts`文件的同级目录下的`README.md`文件中记录了`npm install --save @types/chance`,于是运行，发现接下来就正常使用本地模块了。这个其实跟 webpack 的 npm 包查找机制有关，这里不深究。
+
+#### `Uncaught (in promise) ReferenceError: global is not defined`
+
+使用`var chance = require("chance")`后有错误提示`Uncaught (in promise) ReferenceError: global is not defined`，如图：
+
+![图片](./img/calendar/14.png)
+
+这里耽误 4 个多小时，在 nodejs 中测试没什么问题，但是在 web 上会有，最后在[stackoverflow——Uncaught (in promise): ReferenceError: global is not defined](https://stackoverflow.com/questions/58693720/uncaught-in-promise-referenceerror-global-is-not-defined)中找到灵感，代码如下：
+
+```js
+window.global = window;
+var chance = require("chance")();
+```
+
+:::tip 注意
+global 到底是什么，在 nodejs 环境和 web 环境下，它有什么不同？
+:::
+
+#### 全局引用 chance 模块
+
+不想在每个文件都加入以下代码：
+
+```js
+window.global = window;
+var chance = require("chance")();
+```
+
+于是使用了`webpack.ProvidePlugin`插件
+
+```js
+// config.js
+chainWebpack: config => {
+  config.plugin("provide").use(webpack.ProvidePlugin, [
+    {
+      $: "jquery",
+      jquery: "jquery",
+      jQuery: "jquery",
+      "window.jQuery": "jquery",
+      moment: "moment",
+      Chance: "chance",
+      global: [
+        path.resolve(
+          __dirname,
+          "../../",
+          "theme-reco/vuepress-theme-reco/helpers/global_basic.js"
+        ),
+        "global"
+      ]
+    }
+  ]);
+};
+```
+
+```js
+// global_basic.js
+export var global = typeof window !== "undefined" ? window : this;
+```
+
+```js
+var chance = new Chance();
+```
+
+:::tip 知识点
+
+1. 一开始我使用`export var global = window`，结果编辑都失败，原因是无法识别 window，如图：
+
+   ![图片](./img/calendar/17.png)
+
+   之后参考`jquery`的写法，如图：
+
+   ![图片](./img/calendar/15.png)
+
+   改成`export var global = typeof window !== "undefined" ? window : this;`才终于编译通过。这里可以得出一个结论：<span style="color: red;">在`webpack.ProvidePlugin`中处理的代码，至少要保证编译不出错，哪怕`export var global = 123`都成！这样运行时出错，至少网页也能加载出来！</span>
+
+2. 看前面的代码能知道，因为按顺序先定义`global`，在引用`chance`库，但是现在同时在`webpack.ProvidePlugin`中设置，webpack 能处理好顺序问题吗？答案是可以，但是原理这里不深究。
+3. <span style="color: red;">`webpack.ProvidePlugin`设置`global`的方式值得学习！</span>
+
+:::
+
+#### 全局引用 chance 模块的实例化对象
+
+连代码`var chance = new Chance();`都不想写，想直接在需要的地方`schedule.id = chance.guid();`，这样在控制台直接打印 chance 都是可以的！如图：
+
+![图片](./img/calendar/18.png)
+
+```js
+// config.js
+config.plugin("provide").use(webpack.ProvidePlugin, [
+  {
+    $: "jquery",
+    jquery: "jquery",
+    jQuery: "jquery",
+    "window.jQuery": "jquery",
+    moment: "moment",
+    Chance: "chance",
+    global: [
+      path.resolve(
+        __dirname,
+        "../../",
+        "theme-reco/vuepress-theme-reco/helpers/global_basic.js"
+      ),
+      "global"
+    ],
+    chance: [
+      path.resolve(
+        __dirname,
+        "../../",
+        "theme-reco/vuepress-theme-reco/helpers/global.js"
+      ),
+      "chance"
+    ]
+  }
+]);
+```
+
+```js
+// global_basic.js
+export var global = typeof window !== "undefined" ? window : this;
+```
+
+```js
+// global.js
+export var chance = new Chance();
+```
+
+```js
+// 业务代码直接使用
+schedule.id = chance.guid();
+```
+
+:::tip 知识点
+
+1. 之前以为写法会很简单，如下：
+
+```js
+// global.js
+export var global = typeof window !== "undefined" ? window : this;
+export var chance = new Chance();
+```
+
+结果出错，如图：
+
+![图片](./img/calendar/16.png)
+
+这个错误非常熟悉，就是 global 的问题嘛，但是 global 不是已经被全局化了吗？所以可以确认，在此时，global 并没有被全局化！
+
+那如下代码呢：
+
+```js
+var global = null;
+if (typeof window !== "undefined") {
+  window.global = global;
+} else {
+  this.global = this;
+}
+var Chance = require("chance");
+export var chance = new Chance();
+```
+
+显然想法很天真，不可以，这里似乎陷入了僵局！突然来了一个灵感，就是上述代码设计！测试成功！这里可以得出一个结论：<span style="color: red;">在`webpack.ProvidePlugin`中处理代码，只要保证单个独立文件内容编译不出错，在处理其他文件的时候，就能使用这个编译通过的文件的内容了！</span>
+:::
+
+至此，`chance`库的实例化对象全局引用成功！

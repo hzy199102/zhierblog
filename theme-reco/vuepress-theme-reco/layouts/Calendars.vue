@@ -138,8 +138,9 @@ import Common from "@theme/components/Common";
 import { ModuleTransition } from "@vuepress-reco/core/lib/components";
 import moduleTransitonMixin from "@theme/mixins/moduleTransiton";
 
-import * as store_calendars from "@theme/Page/Calendar/data/calendars.js";
-import * as store_schedules from "@theme/Page/Calendar/data/schedules.js";
+import * as utils_calendars from "@theme/Page/Calendar/utils/calendars.js";
+import * as utils_schedules from "@theme/Page/Calendar/utils/schedules.js";
+import * as utils_common from "@theme/Page/Calendar/utils/common.js";
 
 import "tui-calendar/dist/tui-calendar.css";
 // If you use the default popups, use this.
@@ -149,7 +150,6 @@ import "tui-time-picker/dist/tui-time-picker.css";
 import "@theme/Page/Calendar/css/default.css";
 import "@theme/Page/Calendar/css/icons.css";
 
-// 已经在webpack.ProvidePlugin中全局化了。
 // var $ = require("../Page/Calendar/js/jquery-3.5.1.js");
 // window.$ = $;
 // window.jQuery = $;
@@ -161,15 +161,6 @@ require("../Page/Calendar/js/bootstrap.min.js");
 // console.log(tui);
 
 import Calendar from "tui-calendar";
-
-// 已经在webpack.ProvidePlugin中全局化了。
-// import * as moment from "../Page/Calendar/js/moment.min.js";
-// import * as moment from "moment";
-// window.global = window;
-// var chance = require("chance");
-
-// app.js的内容vue化了
-// require("../Page/Calendar/js/app.js");
 
 export default {
   mixins: [moduleTransitonMixin],
@@ -185,10 +176,22 @@ export default {
     initCalendar() {
       // 不用双向绑定
       this.cal = new Calendar("#calendar", {
+        /**
+         * TOAST UI Calendar应用Google Analytics（GA）收集关于使用开源的统计数据，以确定TOAST UI Calendar在全世界的使用范围。
+         * 它也是决定项目未来进程的重要指标。location.hostname名称（例如>”ui.toast.com）进行收集，唯一的目的只是对使用情况进行统计。
+         **/
+
+        usageStatistics: false,
+        theme: {
+          "common.backgroundColor": "black",
+          "week.timegridLeftAdditionalTimezone.backgroundColor": "black",
+          "week.timegridLeft.backgroundColor": "black",
+          "month.moreView.backgroundColor": "black"
+        },
         defaultView: "week",
         useCreationPopup: this.useCreationPopup,
         useDetailPopup: this.useDetailPopup,
-        calendars: store_calendars.CalendarList,
+        calendars: utils_calendars.CalendarList,
         template: {
           milestone: function(model) {
             return (
@@ -264,7 +267,7 @@ export default {
     initLnbDom() {
       var calendarList = document.getElementById("calendarList");
       var html = [];
-      store_calendars.CalendarList.forEach(function(calendar) {
+      utils_calendars.CalendarList.forEach(function(calendar) {
         html.push(
           '<div class="lnb-calendars-item"><label>' +
             '<input type="checkbox" class="tui-full-calendar-checkbox-round" value="' +
@@ -286,9 +289,9 @@ export default {
     saveNewSchedule(scheduleData) {
       var calendar =
         scheduleData.calendar ||
-        store_calendars.findCalendar(scheduleData.calendarId);
+        utils_calendars.findCalendar(scheduleData.calendarId);
       var schedule = {
-        id: String(store_schedules.chance.guid()),
+        id: String(chance),
         title: scheduleData.title,
         isAllDay: scheduleData.isAllDay,
         start: scheduleData.start,
@@ -321,7 +324,7 @@ export default {
         document.querySelectorAll("#calendarList input")
       );
 
-      store_calendars.CalendarList.forEach(calendar => {
+      utils_calendars.CalendarList.forEach(calendar => {
         this.cal.toggleSchedules(calendar.id, !calendar.checked, false);
       });
 
@@ -384,11 +387,11 @@ export default {
             : "transparent";
         });
 
-        store_calendars.CalendarList.forEach(function(calendar) {
+        utils_calendars.CalendarList.forEach(function(calendar) {
           calendar.checked = checked;
         });
       } else {
-        store_calendars.findCalendar(calendarId).checked = checked;
+        utils_calendars.findCalendar(calendarId).checked = checked;
 
         allCheckedCalendars = calendarElements.every(function(input) {
           return input.checked;
@@ -435,47 +438,18 @@ export default {
       calendarTypeName.innerHTML = type;
       calendarTypeIcon.className = iconClassName;
     },
-    currentCalendarDate(format) {
-      var currentDate = moment([
-        this.cal.getDate().getFullYear(),
-        this.cal.getDate().getMonth(),
-        this.cal.getDate().getDate()
-      ]);
-      return currentDate.format(format);
-    },
     setRenderRangeText() {
       var renderRange = document.getElementById("renderRange");
-      var options = this.cal.getOptions();
-      var viewName = this.cal.getViewName();
-
-      var html = [];
-      if (viewName === "day") {
-        html.push(this.currentCalendarDate("YYYY.MM.DD"));
-      } else if (
-        viewName === "month" &&
-        (!options.month.visibleWeeksCount ||
-          options.month.visibleWeeksCount > 4)
-      ) {
-        html.push(this.currentCalendarDate("YYYY.MM"));
-      } else {
-        html.push(
-          moment(this.cal.getDateRangeStart().getTime()).format("YYYY.MM.DD")
-        );
-        html.push(" ~ ");
-        html.push(
-          moment(this.cal.getDateRangeEnd().getTime()).format(" MM.DD")
-        );
-      }
-      renderRange.innerHTML = html.join("");
+      renderRange.innerHTML = utils_common.getRenderRangeText(this.cal);
     },
     setSchedules() {
       this.cal.clear();
-      store_schedules.generateSchedule(
+      utils_schedules.generateSchedule(
         this.cal.getViewName(),
         this.cal.getDateRangeStart(),
         this.cal.getDateRangeEnd()
       );
-      this.cal.createSchedules(store_schedules.ScheduleList);
+      this.cal.createSchedules(utils_schedules.ScheduleList);
 
       this.refreshScheduleVisibility();
     },
@@ -554,6 +528,26 @@ export default {
         });
       }
     },
+    onClickNavi(e) {
+      var action = this.getDataAction(e.target);
+
+      switch (action) {
+        case "move-prev":
+          this.cal.prev();
+          break;
+        case "move-next":
+          this.cal.next();
+          break;
+        case "move-today":
+          this.cal.today();
+          break;
+        default:
+          return;
+      }
+
+      this.setRenderRangeText();
+      this.setSchedules();
+    },
     setEventListener() {
       // 左侧边栏
       $("#lnb-calendars").on("change", this.onChangeCalendars);
@@ -561,16 +555,16 @@ export default {
       $('.dropdown-menu a[role="menuitem"]').on("click", this.onClickMenu);
       // 新建行程
       $("#btn-new-schedule").on("click", this.createNewSchedule);
+      $("#menu-navi").on("click", this.onClickNavi);
       // window.addEventListener("resize", this.resizeThrottled);
     }
   },
 
   created() {
-    store_calendars.init();
+    utils_calendars.init();
   },
 
   mounted() {
-    // console.log(chance);
     this.cal = null;
     // this.resizeThrottled = tui.util.throttle(()=> {
     //   this.cal.render();

@@ -23,4 +23,4 @@
  * require("../Page/Calendar/js/bootstrap.min.js");
  */
 
-export var chance = new Chance();
+export var global = typeof window !== "undefined" ? window : this;

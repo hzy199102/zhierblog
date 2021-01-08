@@ -31,9 +31,17 @@ module.exports = {
           path.resolve(
             __dirname,
             "../../",
-            "theme-reco/vuepress-theme-reco/helpers/global.js"
+            "theme-reco/vuepress-theme-reco/helpers/global_basic.js"
           ),
           "global"
+        ],
+        chance: [
+          path.resolve(
+            __dirname,
+            "../../",
+            "theme-reco/vuepress-theme-reco/helpers/global.js"
+          ),
+          "chance"
         ]
       }
     ]);

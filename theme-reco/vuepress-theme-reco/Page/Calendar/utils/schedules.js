@@ -1,10 +1,6 @@
 "use strict";
 
-import * as store_calendars from "@theme/Page/Calendar/data/calendars.js";
-
-// 已经在webpack.ProvidePlugin中全局化了。
-// window.global = window;
-export var chance = new Chance();
+import * as utils_calendars from "@theme/Page/Calendar/utils/calendars.js";
 
 /*eslint-disable*/
 
@@ -158,7 +154,7 @@ export function generateRandomSchedule(calendar, renderStart, renderEnd) {
 
 export function generateSchedule(viewName, renderStart, renderEnd) {
   ScheduleList = [];
-  store_calendars.CalendarList.forEach(function(calendar) {
+  utils_calendars.CalendarList.forEach(function(calendar) {
     var i = 0,
       length = 10;
     if (viewName === "month") {
