@@ -1,6 +1,26 @@
 <template>
   <!-- 公共布局 -->
   <Common class="calendar-wrapper-container" :Lnb="false">
+    <b-popover
+      v-if="popover.target"
+      :target="popover.target"
+      triggers="click"
+      :show.sync="popover.show"
+      placement="auto"
+      container="my-container"
+    >
+      <div>aaaaaa{{popover.value}}</div>
+    </b-popover>
+    <b-popover
+      v-if="popover2.target"
+      :target="popover2.target"
+      :show.sync="popover2.show"
+      triggers="focus"
+      placement="auto"
+      container="my-container"
+    >
+      <div>bbbbbb{{popover2.value}}</div>
+    </b-popover>
     <!-- 日历 -->
     <ModuleTransition>
       <div style="height: calc(100vh - 100px);" class="calendar-wrapper">
@@ -153,7 +173,8 @@ import "@theme/Page/Calendar/css/icons.css";
 // var $ = require("../Page/Calendar/js/jquery-3.5.1.js");
 // window.$ = $;
 // window.jQuery = $;
-require("../Page/Calendar/js/bootstrap.min.js");
+// require("../Page/Calendar/js/bootstrap.min.js");
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 // 在vue组件的mounted使用，如果是引用一个js，那需要这样写
 // var tui = require("tui-calendar");
@@ -167,7 +188,18 @@ export default {
   components: { Common, ModuleTransition },
 
   data() {
-    return {};
+    return {
+      popover: {
+        value: "",
+        target: "",
+        show: false
+      },
+      popover2: {
+        value: "",
+        target: "",
+        show: false
+      }
+    };
   },
 
   computed: {},
@@ -183,10 +215,10 @@ export default {
 
         usageStatistics: false,
         theme: {
-          "common.backgroundColor": "black",
-          "week.timegridLeftAdditionalTimezone.backgroundColor": "black",
-          "week.timegridLeft.backgroundColor": "black",
-          "month.moreView.backgroundColor": "black"
+          // "common.backgroundColor": "black",
+          // "week.timegridLeftAdditionalTimezone.backgroundColor": "black",
+          // "week.timegridLeft.backgroundColor": "black",
+          // "month.moreView.backgroundColor": "black"
         },
         defaultView: "week",
         useCreationPopup: this.useCreationPopup,
@@ -207,24 +239,54 @@ export default {
           },
           time: schedule => {
             return this.getTimeTemplate(schedule, false);
+          },
+          popupDetailBody: function(schedule) {
+            return "Body : " + schedule.body;
           }
         }
       });
       // event handlers
       this.cal.on({
+        // 仅针对monthview的more按钮
         clickMore: e => {
           console.log("clickMore", e);
         },
+        // 任何日程
         clickSchedule: e => {
           console.log("clickSchedule", e);
+          console.log(e.schedule.id);
+          var showPopover = "popover";
+          var closePopover = "popover2";
+          if (this.popover.target) {
+            showPopover = "popover2";
+            closePopover = "popover";
+          } else if (this.popover2.target) {
+            showPopover = "popover";
+            closePopover = "popover2";
+          } else {
+            showPopover = "popover";
+            closePopover = "popover2";
+          }
+
+          this[closePopover].target = "";
+          this[closePopover].value = "";
+          this[closePopover].show = false;
+          this.$nextTick(() => {
+            this[showPopover].target = e.event.target;
+            this[showPopover].value = e.schedule.id;
+            this[showPopover].show = true;
+          });
         },
+        // 最上方的日期
         clickDayname: function(date) {
           console.log("clickDayname", date);
         },
+        // 创建日程前
         beforeCreateSchedule: e => {
           console.log("beforeCreateSchedule", e);
-          this.saveNewSchedule(e);
+          // this.saveNewSchedule(e);
         },
+        // 更新日程
         beforeUpdateSchedule: e => {
           var schedule = e.schedule;
           var changes = e.changes;
@@ -238,15 +300,18 @@ export default {
           this.cal.updateSchedule(schedule.id, schedule.calendarId, changes);
           this.refreshScheduleVisibility();
         },
+        // 删除日程
         beforeDeleteSchedule: e => {
           console.log("beforeDeleteSchedule", e);
           this.cal.deleteSchedule(e.schedule.id, e.schedule.calendarId);
         },
+        // 渲染日程之后，基本上所有日程都会触发
         afterRenderSchedule: e => {
           var schedule = e.schedule;
           // var element = cal.getElement(schedule.id, schedule.calendarId);
-          // console.log('afterRenderSchedule', element);
+          // console.log("afterRenderSchedule", schedule);
         },
+        // 时区，要配置timezones
         clickTimezonesCollapseBtn: timezonesCollapsed => {
           console.log("timezonesCollapsed", timezonesCollapsed);
           if (timezonesCollapsed) {
@@ -406,37 +471,13 @@ export default {
 
       this.refreshScheduleVisibility();
     },
-    getDataAction(target) {
-      return target.dataset
-        ? target.dataset.action
-        : target.getAttribute("data-action");
-    },
     setDropdownCalendarType() {
       var calendarTypeName = document.getElementById("calendarTypeName");
       var calendarTypeIcon = document.getElementById("calendarTypeIcon");
-      var options = this.cal.getOptions();
-      var type = this.cal.getViewName();
-      var iconClassName;
+      var res = utils_common.getDropdownCalendarType(this.cal);
 
-      if (type === "day") {
-        type = "Daily";
-        iconClassName = "calendar-icon ic_view_day";
-      } else if (type === "week") {
-        type = "Weekly";
-        iconClassName = "calendar-icon ic_view_week";
-      } else if (options.month.visibleWeeksCount === 2) {
-        type = "2 weeks";
-        iconClassName = "calendar-icon ic_view_week";
-      } else if (options.month.visibleWeeksCount === 3) {
-        type = "3 weeks";
-        iconClassName = "calendar-icon ic_view_week";
-      } else {
-        type = "Monthly";
-        iconClassName = "calendar-icon ic_view_month";
-      }
-
-      calendarTypeName.innerHTML = type;
-      calendarTypeIcon.className = iconClassName;
+      calendarTypeName.innerHTML = res.type;
+      calendarTypeIcon.className = res.iconClassName;
     },
     setRenderRangeText() {
       var renderRange = document.getElementById("renderRange");
@@ -459,7 +500,7 @@ export default {
      */
     onClickMenu(e) {
       var target = $(e.target).closest('a[role="menuitem"]')[0];
-      var action = this.getDataAction(target);
+      var action = utils_common.getDomData(target, "action");
       var options = this.cal.getOptions();
       var viewName = "";
       switch (action) {
@@ -524,12 +565,13 @@ export default {
       if (this.useCreationPopup) {
         this.cal.openCreationPopup({
           start: start,
-          end: end
+          end: end,
+          body: "123"
         });
       }
     },
     onClickNavi(e) {
-      var action = this.getDataAction(e.target);
+      var action = utils_common.getDomData(e.target, "action");
 
       switch (action) {
         case "move-prev":
@@ -555,6 +597,7 @@ export default {
       $('.dropdown-menu a[role="menuitem"]').on("click", this.onClickMenu);
       // 新建行程
       $("#btn-new-schedule").on("click", this.createNewSchedule);
+
       $("#menu-navi").on("click", this.onClickNavi);
       // window.addEventListener("resize", this.resizeThrottled);
     }
@@ -569,8 +612,8 @@ export default {
     // this.resizeThrottled = tui.util.throttle(()=> {
     //   this.cal.render();
     // }, 50);
-    this.useCreationPopup = true;
-    this.useDetailPopup = true;
+    this.useCreationPopup = false;
+    this.useDetailPopup = false;
     this.selectedCalendar = null;
     this.initCalendar();
     this.initLnbDom();
@@ -582,6 +625,8 @@ export default {
 
   watch: {}
 };
+// <style src="@theme/Page/Calendar/css/bootstrap.min.css" scoped></style>
+// <style src="@node_modules/bootstrap/dist/css/bootstrap.min.css" scoped></style>
 </script>
 
 <style src="@theme/Page/Calendar/css/bootstrap.min.css" scoped></style>

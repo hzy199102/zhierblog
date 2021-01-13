@@ -44,6 +44,9 @@ app.use(async (ctx, next) => {
 const test = require("./routes/test");
 app.use(test.routes());
 
+const api = require("./routes/api");
+app.use(api.routes());
+
 // 监听全局错误事件
 app.on("error", err => {
   console.error(err);

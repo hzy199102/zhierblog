@@ -159,3 +159,13 @@
           在正确写了命令之后，运行还是无效，后来把映射在主机的挂载目录`/docker_volume/mysql/data`清除`rm -rf data`，然后在运行这个命令，才有效，切记！
 
        :::
+
+### 选择 mysql workbench 客户端
+
+1. [mysql workbench 官网下载](https://dev.mysql.com/downloads/workbench/)
+
+![Image from alias](./img/docker_mysql/docker_mysql_5.png)
+
+可能会弹窗提示你少了插件——`Mysql workbench requires the visual C++ 2019 redistributable package`，提前安装即可。[Visual Studio 2019](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
+
+![Image from alias](./img/docker_mysql/docker_mysql_6.png)

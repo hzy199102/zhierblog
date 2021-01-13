@@ -96,9 +96,29 @@
         至此：vuepress 引入 calendar 官方 demo 基本完成！
 
     3.  开始处理 calendar 插件的基本使用方式，[calendar 官网](https://nhn.github.io/tui.calendar/latest/tutorial-example00-basic)，尝试将数据改为真实数据。
+
         1. 熟悉 API
            太难了，直接从需求出发，遇到问题在找 API
+        2. 想直接使用 calendar 自带的弹窗，但发现不满足要求，使用 element-ui
+        3. `index.d.ts的openCreationPopup`——>`index.js`——>`calendar.js的openCreationPopup到created.openCreationPopup到_createWeekView`——>`weekView.js中scheduleCreationPopup`——>`scheduleCreationPopup.hbs`从这里看出弹窗是写死的，所以要想自定义，只能自己实现弹窗控件
+        4. 使用 bootstrap 的弹框，正好熟悉 bootstrap，在设定了 alias 之后，发现 popver.js 必须是引用`bootstrap.bundle.min.js`，否则要同时引用`jquery.min.js`,`popper.min.js`,
+           `bootstrap.min.js`,<span style="color: red;">popper.min.js 用于设置弹窗、提示、下拉菜单。</span>
+        5. 开始选型 UI 框架，elementui 和 bootstrapvue，因为现在主要是功能上线，所以选择 elementui，其实我非常喜欢 bootstrapvue，因为界面更优美，不过这个可以后期加。
+        6. elemnt-ui 无法在 vuepress 中使用，报错：`Uncaught Error: Cannot find module 'core-js/library/fn/object/assign'`如图：
+
+           ![图片](./img/calendar/19.png)
+
+           查找资料：[vuepress 加载 element-ui 时报错 Cannot find module ‘core-js/library/fn/object/assign](https://blog.csdn.net/qq_32855007/article/details/108726430)，
+           最后在[Cannot find module 'core-js/library/xxx' when import element-ui #2275](https://github.com/vuejs/vuepress/issues/2275)中发现，原来是 element ui 依赖 core-js 的 2.x 版本，而 web 项目依赖 core-js 的 3.x 版本导致的（错误信息中没有关于 element-ui 的，真坑爹）,改 core-js 的版本是不可能的，安装依赖 yarn add async-validator@1.11.5 / npm install async-validator@1.11.5 就可以解决问题了！
+
+        7. popover 指定地点弹窗问题解决，这个问题耽误我 2 天，算的上极其困难了。
+
     4.  数据存储到 mysql
+
+        1. 使用 mysql workbench 客户端
+        2. 创建了 schedule 表
+        3. nodejs 接口服务提供增删查改
+
     5.  主题处理，和 zhierblog 的主题兼容
 
         1. demo 中的`src/js/theme/themeConfig.js`就是主题，可以参考其中的属性，也可以在`dist/tui-calendar.js`中搜索`timegridLeft`，这里是更加详细的，也能发现有部分 style 配置在 themeconfig.js 中没写全，可在这里找到最全的。然后在初始化中加入 theme 属性即可。

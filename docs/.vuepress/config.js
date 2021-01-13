@@ -43,18 +43,23 @@ module.exports = {
           ),
           "chance"
         ]
-      }
+      },
+      config.resolve.alias.set(
+        "@node_modules",
+        path.resolve(__dirname, "../../", "node_modules")
+      )
     ]);
   },
-  configureWebpack: {
-    resolve: {
-      alias: {
-        // 由于代码段的导入将在 webpack 编译之前执行，因此你无法使用 webpack 中的路径别名，此处的 @ 默认值是 process.cwd()。所以@demo无效
-        "@demo": path.resolve(__dirname, "../", "demo")
-        // chance: path.join(__dirname, "../../node_modules", "chance")
-      }
-    }
-  },
+  // configureWebpack: {
+  //   resolve: {
+  //     alias: {
+  //       // 由于代码段的导入将在 webpack 编译之前执行，因此你无法使用 webpack 中的路径别名，此处的 @ 默认值是 process.cwd()。所以@demo无效
+  //       "@demo": path.resolve(__dirname, "../", "demo"),
+  //       "@node_modules": path.resolve(__dirname, "../../", "node_modules")
+  //       // chance: path.join(__dirname, "../../node_modules", "chance")
+  //     }
+  //   }
+  // },
   evergreen: false, //浏览器兼容性，如果你的对象只有那些 “常青树” 浏览器，你可以将其设置成 true，这将会禁止 ESNext 到 ES5 的转译以及对 IE 的 polyfills，同时会带来更快的构建速度和更小的文件体积。
   markdown: {
     anchor: {

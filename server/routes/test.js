@@ -34,16 +34,8 @@ router.get("/api", async ctx => {
   };
 });
 
-router.get("/api2", async ctx => {
-  // console.log(new chance().string());
-  ctx.body = {
-    code: 200,
-    message: "错在陈醋当成墨，写尽半生纸上酸。"
-  };
-});
-
 router.get("/socre/list", async ctx => {
-  var sql = "SELECT * FROM score";
+  var sql = "SELECT * FROM websites";
   var result = await dbFuc(sql);
 
   ctx.body = {
