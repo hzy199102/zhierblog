@@ -4,23 +4,81 @@
     <b-popover
       v-if="popover.target"
       :target="popover.target"
-      triggers="click"
+      triggers="manual"
       :show.sync="popover.show"
       placement="auto"
       container="my-container"
     >
-      <div>aaaaaa{{popover.value}}</div>
+      <Info :schedule="popover.schedule"></Info>
     </b-popover>
+
     <b-popover
-      v-if="popover2.target"
-      :target="popover2.target"
-      :show.sync="popover2.show"
-      triggers="focus"
+      target="btn-new-schedule"
+      triggers="click"
+      :show.sync="popoverShow"
       placement="auto"
       container="my-container"
+      ref="popover"
+      @show="onShow"
+      @shown="onShown"
+      @hidden="onHidden"
     >
-      <div>bbbbbb{{popover2.value}}</div>
+      <template #title>
+        <b-button @click="onClose" class="close" aria-label="Close">
+          <span class="d-inline-block" aria-hidden="true">&times;</span>
+        </b-button>Interactive Content
+      </template>
+
+      <div>
+        <b-form-group
+          label="Name"
+          label-for="popover-input-1"
+          label-cols="3"
+          :state="input1state"
+          class="mb-1"
+          description="Enter your name"
+          invalid-feedback="This field is required"
+        >
+          <b-form-input
+            ref="input1"
+            id="popover-input-1"
+            v-model="input1"
+            :state="input1state"
+            size="sm"
+          ></b-form-input>
+        </b-form-group>
+
+        <b-form-group
+          label="Color"
+          label-for="popover-input-2"
+          label-cols="3"
+          :state="input2state"
+          class="mb-1"
+          description="Pick a color"
+          invalid-feedback="This field is required"
+        >
+          <b-form-select
+            id="popover-input-2"
+            v-model="input2"
+            :state="input2state"
+            :options="options"
+            size="sm"
+          ></b-form-select>
+        </b-form-group>
+
+        <b-alert show class="small">
+          <strong>Current Values:</strong>
+          <br />Name:
+          <strong>{{ input1 }}</strong>
+          <br />Color:
+          <strong>{{ input2 }}</strong>
+        </b-alert>
+
+        <b-button @click="onClose" size="sm" variant="danger">Cancel</b-button>
+        <b-button @click="onOk" size="sm" variant="primary">Ok</b-button>
+      </div>
     </b-popover>
+
     <!-- 日历 -->
     <ModuleTransition>
       <div style="height: calc(100vh - 100px);" class="calendar-wrapper">
@@ -182,29 +240,81 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 // console.log(tui);
 
 import Calendar from "tui-calendar";
+import Info from "@theme/components/Calendar/info/info.vue";
 
 export default {
   mixins: [moduleTransitonMixin],
-  components: { Common, ModuleTransition },
+  components: { Common, ModuleTransition, Info },
 
   data() {
     return {
       popover: {
-        value: "",
         target: "",
-        show: false
+        show: false,
+        schedule: {}
       },
-      popover2: {
-        value: "",
-        target: "",
-        show: false
-      }
+      input1: "",
+      input1state: null,
+      input2: "",
+      input2state: null,
+      options: [{ text: "- Choose 1 -", value: "" }, "Red", "Green", "Blue"],
+      input1Return: "",
+      input2Return: "",
+      popoverShow: false
     };
   },
 
   computed: {},
 
   methods: {
+    onClose() {
+      this.popoverShow = false;
+    },
+    onOk() {
+      if (!this.input1) {
+        this.input1state = false;
+      }
+      if (!this.input2) {
+        this.input2state = false;
+      }
+      if (this.input1 && this.input2) {
+        this.onClose();
+        // Return our popover form results
+        this.input1Return = this.input1;
+        this.input2Return = this.input2;
+      }
+    },
+    onShow() {
+      // This is called just before the popover is shown
+      // Reset our popover form variables
+      this.input1 = "";
+      this.input2 = "";
+      this.input1state = null;
+      this.input2state = null;
+      this.input1Return = "";
+      this.input2Return = "";
+    },
+    onShown() {
+      // Called just after the popover has been shown
+      // Transfer focus to the first input
+      this.focusRef(this.$refs.input1);
+    },
+    onHidden() {
+      // Called just after the popover has finished hiding
+      // Bring focus back to the button
+      this.focusRef(this.$refs.button);
+    },
+    focusRef(ref) {
+      // Some references may be a component, functional component, or plain element
+      // This handles that check before focusing, assuming a `focus()` method exists
+      // We do this in a double `$nextTick()` to ensure components have
+      // updated & popover positioned first
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          (ref.$el || ref).focus();
+        });
+      });
+    },
     initCalendar() {
       // 不用双向绑定
       this.cal = new Calendar("#calendar", {
@@ -253,28 +363,14 @@ export default {
         },
         // 任何日程
         clickSchedule: e => {
-          console.log("clickSchedule", e);
-          console.log(e.schedule.id);
-          var showPopover = "popover";
-          var closePopover = "popover2";
-          if (this.popover.target) {
-            showPopover = "popover2";
-            closePopover = "popover";
-          } else if (this.popover2.target) {
-            showPopover = "popover";
-            closePopover = "popover2";
-          } else {
-            showPopover = "popover";
-            closePopover = "popover2";
-          }
-
-          this[closePopover].target = "";
-          this[closePopover].value = "";
-          this[closePopover].show = false;
+          this.popover.target = "";
+          this.popover.show = false;
+          this.popover.schedule = {};
           this.$nextTick(() => {
-            this[showPopover].target = e.event.target;
-            this[showPopover].value = e.schedule.id;
-            this[showPopover].show = true;
+            this.popover.schedule = e.schedule;
+            this.popover.target = e.event.target;
+            this.popover.show = true;
+            console.log("clickSchedule", e.schedule.title);
           });
         },
         // 最上方的日期
