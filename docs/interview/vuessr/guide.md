@@ -64,3 +64,29 @@
 ## vue-hackernews-2.0 源码
 
 ## 扩展
+
+### postinstall
+
+参考资料：[npm: disable postinstall script for package](https://stackoverflow.com/questions/23505318/npm-disable-postinstall-script-for-package)
+
+```json
+// package.json
+"scripts": {
+    "dev": "node server",
+    "start": "cross-env NODE_ENV=production node server",
+    "build": "rimraf dist && npm run build:client && npm run build:server",
+    "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.client.config.js --progress --hide-modules",
+    "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.server.config.js --progress --hide-modules",
+    "postinstall": "npm run build"
+  }
+```
+
+### scrollBehavior
+
+参考资料：[vue 组件的 scrollBehavior](https://www.jianshu.com/p/c805b74e1f14?utm_campaign)
+
+如果`yarn install`或者`cnpm install`之后，会自动执行`postinstall`对应的命令，除非临时修正：`npm install --ignore-scripts`或者永久修正：`npm config set ignore-scripts true`
+
+### SSR
+
+参考资料：[webpack4、Koa 配置 Vue 服务器端渲染(SSR)](https://juejin.cn/post/6844903701434335246)
