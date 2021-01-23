@@ -126,3 +126,19 @@
 
 可以看出，主要通过 try...catch...方式去捕获异常。
 还有个小彩蛋：报错和 rejected 状态没有被处理，虽然不会抛出，也不会影响程序。但是会在控制台有红字提示。所以最后把这个提示功能加上,下面的代码调整了一下顺秩序，看着更顺眼点，再添加提示的功能。
+
+## promise 的使用场景
+
+参考资料：[Promise.resolve()与 new Promise(r => r(v))](https://www.cnblogs.com/wjlbk/p/12633337.html)
+
+直接上代码：
+
+<<< @/docs/demo/promise/demo_3.js
+
+![图片](./img/promise/1.png)
+
+<span style="color: red;">这个意义是非常重大的，它表示任何地方，不同文件下，都能按顺序执行代码！异步问题得到解决。</span>
+
+在上一段经典代码，只用于了解执行时机
+
+<<< @/docs/demo/promise/promise_v6.js
