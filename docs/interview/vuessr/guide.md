@@ -63,6 +63,28 @@
 
 ## vue-hackernews-2.0 源码
 
+### 解析路径
+
+1. 根据 package.json 的 scripts 了解到入口在 server.js
+2. `index.template.html`文件详解：[manifest.json 参数详解](https://blog.csdn.net/sysuzjz/article/details/51648163)，[pwa 学习整理　 manifest 的配置](https://blog.csdn.net/zemprogram/article/details/102989404)
+
+#### `setup-dev-server.js`文件详解
+
+1. chokidar
+
+参考资料：[监听文件变化插件 chokidar 的使用教程](https://blog.csdn.net/qq_26582705/article/details/82559019)
+
+```js
+const chokidar = require("chokidar");
+// read template from disk and watch
+template = fs.readFileSync(templatePath, "utf-8");
+chokidar.watch(templatePath).on("change", () => {
+  template = fs.readFileSync(templatePath, "utf-8");
+  console.log("index.html template updated.");
+  update();
+});
+```
+
 ## 扩展
 
 ### postinstall
