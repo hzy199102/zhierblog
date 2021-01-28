@@ -4,6 +4,13 @@
     <!-- 日历 -->
     <ModuleTransition>
       <div style="min-height: calc(100vh - 100px);" class="calendar-wrapper">
+        <b-popover
+          v-if="popover.target"
+          :target="popover.target"
+          :show.sync="popover.show"
+          title="Popover"
+          ref="popover"
+        >{{popover.text}}</b-popover>
         <div id="top">葡萄</div>
         <div style="display: flex;">
           <Lnb
@@ -45,7 +52,12 @@ export default {
   data() {
     return {
       CalendarList: [],
-      renderRangeText: ""
+      renderRangeText: "",
+      popover: {
+        target: null,
+        text: "",
+        show: false
+      }
     };
   },
 
@@ -101,15 +113,13 @@ export default {
         // 任何日程
         clickSchedule: e => {
           console.log(e);
-          // this.popover.target = "";
-          // this.popover.show = false;
-          // this.popover.schedule = {};
-          // this.$nextTick(() => {
-          //   this.popover.schedule = e.schedule;
-          //   this.popover.target = e.event.target;
-          //   this.popover.show = true;
-          //   console.log("clickSchedule", e.schedule.title);
-          // });
+
+          this.popover.target = "";
+          this.$nextTick(() => {
+            this.popover.text = e.schedule.title;
+            this.popover.target = e.event.target;
+            this.popover.show = true;
+          });
         },
         // 最上方的日期
         clickDayname: function(date) {
