@@ -2,7 +2,7 @@ module.exports = [
   {
     text: "日历",
     ariaLabel: "calendar",
-    link: "/calendar/"
+    link: "/calendars/"
   },
   {
     text: "百宝盒",

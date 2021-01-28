@@ -10,8 +10,8 @@ import VueCompositionAPI from "@vue/composition-api";
 import ElementUI from "element-ui";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
 // import "element-ui/lib/theme-chalk/index.css";
-// import "bootstrap/dist/css/bootstrap.css";
-// import "bootstrap-vue/dist/bootstrap-vue.css";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
 export default ({ Vue, siteData, isServer, router }) => {
   // Make BootstrapVue available throughout your project

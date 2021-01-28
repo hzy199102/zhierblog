@@ -1,7 +1,5 @@
 "use strict";
 
-import * as utils_calendars from "@theme/Page/Calendar/utils/calendars.js";
-
 /*eslint-disable*/
 
 export var ScheduleList = [];
@@ -152,9 +150,14 @@ export function generateRandomSchedule(calendar, renderStart, renderEnd) {
   ScheduleList.push(schedule);
 }
 
-export function generateSchedule(viewName, renderStart, renderEnd) {
+export function generateSchedule(
+  CalendarList,
+  viewName,
+  renderStart,
+  renderEnd
+) {
   ScheduleList = [];
-  utils_calendars.CalendarList.forEach(function(calendar) {
+  CalendarList.forEach(function(calendar) {
     var i = 0,
       length = 10;
     if (viewName === "month") {
