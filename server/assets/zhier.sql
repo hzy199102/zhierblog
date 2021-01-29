@@ -4,7 +4,6 @@
  zhier
 
 */
-
 -- ----------------------------
 --  Table structure for `score`
 -- ----------------------------
@@ -16,18 +15,15 @@ CREATE TABLE `score` (
   `CREATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `UPDATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8 COMMENT='评分表';
-
-
+) ENGINE = InnoDB AUTO_INCREMENT = 10000 DEFAULT CHARSET = utf8 COMMENT = '评分表';
 -- ----------------------------
 --  Records of `websites`
 -- ----------------------------
 BEGIN;
 -- INSERT INTO `websites` VALUES ('10001', '', '80', '', ''), ('10002', '', '90', '', '');
 COMMIT;
-
 -- ----------------------------
---  Table structure for `score`
+--  Table structure for `schedule`
 -- ----------------------------
 DROP TABLE IF EXISTS `zhier`.`schedule`;
 CREATE TABLE `zhier`.`schedule` (
@@ -60,5 +56,33 @@ CREATE TABLE `zhier`.`schedule` (
   `CREATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `UPDATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8 COMMENT='评分表';
-
+) ENGINE = InnoDB AUTO_INCREMENT = 10000 DEFAULT CHARSET = utf8 COMMENT = '日程表';
+-- ----------------------------
+--  Table structure for `calendar`
+-- ----------------------------
+DROP TABLE IF EXISTS `zhier`.`calendar`;
+CREATE TABLE `zhier`.`calendar` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '日历id',
+  `name` VARCHAR(50) NULL COMMENT '日历名称',
+  `color` VARCHAR(10) NULL COMMENT '文字颜色',
+  `bgColor` VARCHAR(10) NULL COMMENT '背景颜色',
+  `borderColor` VARCHAR(10) NULL COMMENT '边框颜色',
+  `dragBgColor` VARCHAR(10) NULL COMMENT '拖拽颜色',
+  `CREATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `UPDATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 10000 DEFAULT CHARSET = utf8 COMMENT = '日历表';
+-- ----------------------------
+--  Records of `calendar`
+-- ----------------------------
+BEGIN;
+INSERT INTO `zhier`.`calendar`(name, color, bgColor, borderColor, dragBgColor)
+VALUES
+  ('工作', '#ffffff', '#9e5fff', '#9e5fff', '#9e5fff'),
+  ('健身', '#ffffff', '#00a9ff', '#00a9ff', '#00a9ff'),
+  ('学习', '#ffffff', '#ff5583', '#ff5583', '#ff5583'),
+  ('行程', '#ffffff', '#03bd9e', '#03bd9e', '#03bd9e'),
+  ('备忘', '#ffffff', '#bbdc00', '#bbdc00', '#bbdc00'),
+  ('目标', '#ffbb3b', '#ffbb3b', '#ffbb3b', '#ffbb3b'),
+  ('复盘', '#ffffff', '#9d9d9d', '#9d9d9d', '#9d9d9d');
+COMMIT;

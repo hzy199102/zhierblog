@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/chance": "^1.1.0",
     "async-validator": "1.11.5",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.21.2",
     "chance": "^1.1.7",
@@ -21,6 +22,7 @@
     "koa": "^2.13.0",
     "koa-router": "^9.4.0",
     "koa-static": "^5.0.0",
+    "koa2-cors": "^2.0.6",
     "moment": "^2.29.1",
     "mysql": "^2.18.1",
     "tui-calendar": "^1.13.0",

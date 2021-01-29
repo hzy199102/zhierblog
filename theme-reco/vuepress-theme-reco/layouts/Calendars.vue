@@ -8,9 +8,15 @@
           v-if="popover.target"
           :target="popover.target"
           :show.sync="popover.show"
-          title="Popover"
           ref="popover"
-        >{{popover.text}}</b-popover>
+        >
+          <scheduleInfo
+            v-if="popover.schedule"
+            :schedule="popover.schedule"
+            :CalendarList="CalendarList"
+          ></scheduleInfo>
+          <scheduleNew v-else :CalendarList="CalendarList"></scheduleNew>
+        </b-popover>
         <div id="top">葡萄</div>
         <div style="display: flex;">
           <Lnb
@@ -35,6 +41,8 @@ import moduleTransitonMixin from "@theme/mixins/moduleTransiton";
 
 import Lnb from "@theme/components/Calendar/Lnb/Lnb.vue";
 import Menu from "@theme/components/Calendar/Menu/Menu.vue";
+import scheduleNew from "@theme/components/Calendar/scheduleNew/scheduleNew.vue";
+import scheduleInfo from "@theme/components/Calendar/scheduleInfo/scheduleInfo.vue";
 
 import * as utils_calendars from "@theme/Page/Calendar/utils/calendars.js";
 import * as utils_schedules from "@theme/Page/Calendar/utils/schedules.js";
@@ -43,11 +51,20 @@ import * as utils_common from "@theme/Page/Calendar/utils/common.js";
 import "tui-calendar/dist/tui-calendar.css";
 import "@theme/Page/Calendar/css/icons.css";
 
+import axios from "axios";
+
 import Calendar from "tui-calendar";
 
 export default {
   mixins: [moduleTransitonMixin],
-  components: { Common, ModuleTransition, Lnb, Menu },
+  components: {
+    Common,
+    ModuleTransition,
+    Lnb,
+    Menu,
+    scheduleNew,
+    scheduleInfo
+  },
 
   data() {
     return {
@@ -55,8 +72,8 @@ export default {
       renderRangeText: "",
       popover: {
         target: null,
-        text: "",
-        show: false
+        show: false,
+        schedule: null
       }
     };
   },
@@ -80,8 +97,6 @@ export default {
           // "month.moreView.backgroundColor": "black"
         },
         defaultView: "week",
-        useCreationPopup: this.useCreationPopup,
-        useDetailPopup: this.useDetailPopup,
         calendars: this.CalendarList,
         template: {
           milestone: function(model) {
@@ -114,9 +129,9 @@ export default {
         clickSchedule: e => {
           console.log(e);
 
-          this.popover.target = "";
+          this.popover.target = null;
           this.$nextTick(() => {
-            this.popover.text = e.schedule.title;
+            this.popover.schedule = e.schedule;
             this.popover.target = e.event.target;
             this.popover.show = true;
           });
@@ -129,6 +144,12 @@ export default {
         beforeCreateSchedule: e => {
           console.log("beforeCreateSchedule", e);
           // this.saveNewSchedule(e);
+          this.popover.target = null;
+          this.$nextTick(() => {
+            this.popover.schedule = null;
+            this.popover.target = e.guide.guideElement;
+            this.popover.show = true;
+          });
         },
         // 更新日程
         beforeUpdateSchedule: e => {
@@ -336,14 +357,6 @@ export default {
       var end = moment()
         .add(1, "hours")
         .toDate();
-
-      if (this.useCreationPopup) {
-        this.cal.openCreationPopup({
-          start: start,
-          end: end,
-          body: "123"
-        });
-      }
     },
     onClickNavi(action) {
       console.log(action);
@@ -363,20 +376,28 @@ export default {
 
       this.setRenderRangeText();
       this.setSchedules();
+    },
+    init() {
+      axios.get("/calendar/list").then(response => {
+        this.CalendarList = response.data.message.map(item => {
+          item.checked = true;
+          item.id = String(item.id);
+          return item;
+        });
+        this.initCalendar();
+        this.setRenderRangeText();
+        this.setSchedules();
+      });
     }
   },
 
   created() {
-    this.CalendarList = utils_calendars.init();
+    axios.defaults.baseURL = "http://127.0.0.1:8090/api";
   },
 
   mounted() {
     this.cal = null;
-    this.useCreationPopup = false;
-    this.useDetailPopup = false;
-    this.initCalendar();
-    this.setRenderRangeText();
-    this.setSchedules();
+    this.init();
   },
 
   watch: {}
@@ -385,7 +406,7 @@ export default {
 
 <style src="../styles/theme.styl" lang="stylus"></style>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 .calendar-wrapper-container {
   margin: 0 auto;
   padding: 3.6rem 0;

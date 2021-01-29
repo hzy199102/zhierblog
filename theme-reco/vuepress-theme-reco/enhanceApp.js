@@ -8,16 +8,28 @@ import {
 } from "@theme/helpers/other";
 import VueCompositionAPI from "@vue/composition-api";
 import ElementUI from "element-ui";
-import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
-// import "element-ui/lib/theme-chalk/index.css";
+// import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
+import {
+  BPopover,
+  BootstrapVueIcons,
+  BDropdown,
+  BDropdownItem,
+  BDropdownDivider
+} from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
+import "element-ui/lib/theme-chalk/index.css";
 
 export default ({ Vue, siteData, isServer, router }) => {
-  // Make BootstrapVue available throughout your project
-  Vue.use(BootstrapVue);
-  // Optionally install the BootstrapVue icon components plugin
-  Vue.use(IconsPlugin);
+  Vue.use(BootstrapVueIcons);
+  // 我只要这个弹出框
+  Vue.component("b-popover", BPopover);
+  Vue.component("b-dropdown", BDropdown);
+  Vue.component("b-dropdown-item", BDropdownItem);
+  Vue.component("b-dropdown-divider", BDropdownDivider);
+
+  // Vue.use(BootstrapVue);
+  // Vue.use(IconsPlugin);
   Vue.use(ElementUI);
   Vue.use(VueCompositionAPI);
   Vue.mixin(postMixin);

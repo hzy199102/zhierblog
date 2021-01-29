@@ -47,6 +47,17 @@ const dbFuc_new = function(sql, params) {
   });
 };
 
+router.get("/calendar/list", async ctx => {
+  var sql = "SELECT * FROM calendar";
+  var result = await dbFuc_list(sql);
+
+  ctx.body = {
+    code: 200,
+    message: result
+  };
+  // connection.end();
+});
+
 router.get("/schedule/list", async ctx => {
   var sql = "SELECT * FROM schedule";
   var result = await dbFuc_list(sql);
