@@ -47,48 +47,48 @@ const dbFuc_new = function(sql, params) {
   });
 };
 
-router.get("/calendar/list", async ctx => {
+router.get("/calendar/list", async (ctx) => {
   var sql = "SELECT * FROM calendar";
   var result = await dbFuc_list(sql);
 
   ctx.body = {
     code: 200,
-    message: result
+    message: result,
   };
   // connection.end();
 });
 
-router.get("/schedule/list", async ctx => {
+router.get("/schedule/list", async (ctx) => {
   var sql = "SELECT * FROM schedule";
   var result = await dbFuc_list(sql);
 
   ctx.body = {
     code: 200,
-    message: result
+    message: result,
   };
   // connection.end();
 });
 
-router.get("/schedule/new", async ctx => {
+router.post("/schedule/new", async (ctx) => {
   var sql = "INSERT INTO schedule(title,calendarId) VALUES(?,?)";
   var params = ["hzy", "10001"];
   var result = await dbFuc_new(sql, params);
 
   ctx.body = {
     code: 200,
-    message: result
+    message: result,
   };
   // connection.end();
 });
 
-router.get("/schedule/update", async ctx => {
+router.get("/schedule/update", async (ctx) => {
   var sql = "UPDATE schedule SET title = ? WHERE id = 10000";
   var params = ["hzy2"];
   var result = await dbFuc_new(sql, params);
 
   ctx.body = {
     code: 200,
-    message: result
+    message: result,
   };
   // connection.end();
 });

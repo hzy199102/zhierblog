@@ -31,6 +31,7 @@ CREATE TABLE `zhier`.`schedule` (
   `calendarId` VARCHAR(16) NOT NULL COMMENT '日历id',
   `title` VARCHAR(200) NULL COMMENT '日程标题',
   `body` VARCHAR(500) NULL COMMENT '日程内容',
+  `note` VARCHAR(500) NULL COMMENT '日程备注',
   `start` TIMESTAMP NULL COMMENT '日程开始时间',
   `end` TIMESTAMP NULL COMMENT '日程结束时间',
   `goingDuration` INT(8) NULL,
@@ -53,6 +54,7 @@ CREATE TABLE `zhier`.`schedule` (
   `customStyle` VARCHAR(12) NULL,
   `raw` VARCHAR(200) NULL,
   `state` VARCHAR(12) NULL COMMENT '日程级别，比如busy,free',
+  `status` VARCHAR(12) NULL COMMENT '日程状态，比如pending， doing, finish，giving_up',
   `CREATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `UPDATE_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)

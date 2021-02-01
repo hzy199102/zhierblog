@@ -69,6 +69,7 @@ export default {
   data() {
     return {
       CalendarList: [],
+
       renderRangeText: "",
       popover: {
         target: null,
