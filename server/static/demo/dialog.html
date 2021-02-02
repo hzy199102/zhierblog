@@ -1,0 +1,145 @@
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <head>
+    <h1>算量平台弹窗demo</h1>
+  </head>
+  <body>
+    <p style="background: red; height: 30px; line-height: 30px;" id="move">
+      我是可拖拽区域
+    </p>
+    <p>
+      <button id="BtnHideWebWindow">1.隐藏弹窗</button>
+    </p>
+    <p id="info">
+      This is text
+    </p>
+    <p id="credit">
+      当前积分（这个积分改变就说明registerCallBack接口有问题）：0
+    </p>
+    <p id="credit2">
+      当前积分：0
+    </p>
+    <p id="broadcastCredit">
+      当前广播积分：0
+    </p>
+  </body>
+  <script src="./qwebchannel.js"></script>
+  <script
+    type="text/javascript"
+    src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+  ></script>
+</html>
+
+<object
+  type="application/x-qt-plugin"
+  height="1"
+  width="1"
+  id="MainInteractor"
+></object>
+<script>
+  /**
+   * 算量平台接口列表：这里是汇总，具体实现接口的方法名称，传递参数，返回结果以及方法的实现效果都在具体代码实现的注释中
+   * 1. 拖拽弹窗容器:moveWindow
+   * 2. 弹窗:popupWindow
+   * 3. 登录:login
+   * 4. 登出:logout
+   * 5. 浏览器打开外链:loadUrlInBrowser
+   * 6. 获取基本信息:getInfo
+   * 7. 切换容器:switchNavigation
+   * 8. 隐藏弹窗:hideWindow
+   * 9. 显示弹窗:showWindow
+   * 10. 指定弹窗是否存在:isExistWindow
+   * 11. 容器通信:notify
+   * 12. 注册监听容器通信:registerCallBack
+   *     1. 登出事件（容器内部指定）:LoginInCallBack
+   *     2. 登录事件（容器内部指定）:LoginOutCallBack
+   * 13. 刷新容器:reload
+   * 14. 清除缓存:clearCache
+   * 15. 切换用户:changeUser
+   * 16. 广播:broadcast
+   */
+
+  var MainInteractor = null;
+
+  window.onload = function() {
+    new QWebChannel(qt.webChannelTransport, channel => {
+      MainInteractor = channel.objects["Interactor"];
+      console.log(MainInteractor);
+
+      var move = false; //移动标记
+      var _x, _y; //鼠标离控件左上角的相对位置
+      $("#move").mousedown(function(e) {
+        move = true;
+        _x = e.pageX;
+        _y = e.pageY;
+      });
+
+      $(document).mousemove(function(e) {
+        if (move) {
+          var x = e.pageX - _x; //控件左上角到屏幕左上角的相对位置
+          var y = e.pageY - _y;
+          MainInteractor.moveWindow(x, y);
+        }
+        $(document).mouseup(function() {
+          move = false;
+        });
+      });
+
+      /**
+       * 容器注册事件监听
+       * 注意：1. 当同个事件名被注册多次的情况下，后一个覆盖前一个
+       *      2. 根据关键字注册回调函数，目前软件主动发出的事件包括登录成功，登出成功
+       *
+       * 第一个参数：监听事件名，目前软件主动发出的事件包括登录成功（LoginInCallBack），登出成功（LoginOutCallBack）
+       *            也可以是网页自定义的事件名称（changeCredit）
+       * 第二个参数：触发的回调方法，是网页内部定义的方法，方法可以有参数
+       *
+       */
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack(
+        "changeBroadcastCredit",
+        "onJSchangeBroadcastCredit"
+      );
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack("changeCredit", "onJSChangeCredit");
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack("changeCredit", "onJSChangeCredit2");
+    });
+  };
+
+  // changeCredit事件触发的方法
+  function onJSChangeCredit(strArg) {
+    document.getElementById("credit").innerHTML =
+      "当前积分（这个积分改变就说明registerCallBack接口有问题）：" +
+      JSON.parse(strArg).credit;
+  }
+
+  // changeCredit事件触发的方法
+  function onJSChangeCredit2(strArg) {
+    document.getElementById("credit2").innerHTML =
+      "当前积分：" + JSON.parse(strArg).credit;
+  }
+
+  // changeBroadcastCredit事件触发的方法
+  function onJSchangeBroadcastCredit(strArg) {
+    document.getElementById("broadcastCredit").innerHTML =
+      "当前广播积分：" + JSON.parse(strArg).broadcastCredit;
+  }
+
+  var BtnHideWebWindow = document.getElementById("BtnHideWebWindow");
+  BtnHideWebWindow.onclick = function() {
+    /**
+     * 隐藏指定弹窗
+     * 注:任何容器调用这个方法都能隐藏指定的弹窗，不一定要容器自身
+     *
+     * 第一个参数:弹窗容器名称
+     *
+     * 返回结果：
+     *   true:存在指定弹窗容器
+     *   false:不存在指定的弹窗容器
+     */
+    MainInteractor.hideWindow("TestWgt", res => {
+      document.getElementById("info").innerHTML = "隐藏指定弹窗:" + res;
+    });
+  };
+</script>

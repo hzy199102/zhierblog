@@ -20,6 +20,8 @@
     "element-ui": "^2.14.1",
     "jquery": "^3.5.1",
     "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-bodyparser": "^4.3.0",
     "koa-router": "^9.4.0",
     "koa-static": "^5.0.0",
     "koa2-cors": "^2.0.6",

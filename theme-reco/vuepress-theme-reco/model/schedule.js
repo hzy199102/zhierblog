@@ -5,39 +5,39 @@
 export var categoryList = [
   {
     name: "里程牌",
-    value: "milestone",
+    value: "milestone"
   },
   {
     name: "任务",
-    value: "task",
+    value: "task"
   },
   {
     name: "全天",
-    value: "allday",
+    value: "allday"
   },
   {
     name: "时间",
-    value: "time",
-  },
+    value: "time"
+  }
 ];
 
 export var statusList = [
   {
     name: "计划中",
-    value: "pending",
+    value: "pending"
   },
   {
     name: "进行中",
-    value: "doing",
+    value: "doing"
   },
   {
     name: "完成",
-    value: "finish",
+    value: "finish"
   },
   {
     name: "放弃",
-    value: "giving_up",
-  },
+    value: "giving_up"
+  }
 ];
 
 export class ScheduleInfo {
@@ -63,5 +63,13 @@ export class ScheduleInfo {
 
     this.state = obj.state || null;
     this.status = obj.status || null;
+  }
+
+  toParams() {
+    if (this.startAndEnd && this.startAndEnd.length === 2) {
+      this.start = new Date(this.startAndEnd[0]).getTime();
+      this.end = new Date(this.startAndEnd[1]).getTime();
+    }
+    return this;
   }
 }

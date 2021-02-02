@@ -8,6 +8,8 @@ const path = require("path");
  */
 const static = require("koa-static");
 
+const koaBody = require("koa-body");
+
 // const bodyparser = require('koa-bodyparser')
 
 const app = new Koa();
@@ -31,7 +33,16 @@ app.use(
     maxAge: 5,
     credentials: true,
     allowMethods: ["GET", "POST", "DELETE"],
-    allowHeaders: ["Content-Type", "Authorization", "Accept"],
+    allowHeaders: ["Content-Type", "Authorization", "Accept"]
+  })
+);
+
+app.use(
+  koaBody({
+    multipart: true, // 支持文件上传
+    formidable: {
+      multipart: true // 支持多文件上传，默认开启
+    }
   })
 );
 
@@ -58,7 +69,7 @@ app.use(async (ctx, next) => {
 });
 
 // 静态文件服务
-// app.use(static(path.resolve("./client")));
+app.use(static(path.resolve("./static")));
 // console.log(path.resolve("./client"));
 
 // 导入路由文件
@@ -69,7 +80,7 @@ const api = require("./routes/api");
 app.use(api.routes());
 
 // 监听全局错误事件
-app.on("error", (err) => {
+app.on("error", err => {
   console.error(err);
 });
 

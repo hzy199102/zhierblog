@@ -1,0 +1,296 @@
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <head>
+    <h1>算量平台右侧边栏demo</h1>
+  </head>
+  <body style="width: 260px;">
+    <p>
+      <button id="BtnLogin">1.登录</button>
+      <button id="BtnLogout">2.登出</button>
+      <button id="BtnBrowser">3.浏览器打开外链</button>
+      <button id="BtnInfo">4.获取基本信息</button>
+      <button id="BtnPopupWebWindow">5.打开弹窗</button>
+      <button id="BtnShowWebWindow">6.重新显示弹窗</button>
+      <button id="BtnIsExistWebWindow">7.是否存在指定弹窗</button>
+      <button id="BtnHideWebWindow">8.隐藏弹窗</button>
+      <button id="BtnSwitchToWorktable">9.切换工作台</button>
+      <button id="BtnRefresh">10.刷新容器</button>
+      <button id="BtnClearCache">11.清除容器缓存</button>
+      <button id="BtnChangeUser">12.切换用户</button>
+    </p>
+    <p id="info">
+      This is text
+    </p>
+    <p id="credit">
+      当前积分：0
+    </p>
+    <p id="broadcastCredit">
+      当前广播积分（这个广播积分改变就说明registerCallBack接口有问题）：0
+    </p>
+    <p id="broadcastCredit2">
+      当前广播积分：0
+    </p>
+  </body>
+  <script src="./qwebchannel.js"></script>
+  <!-- <script
+    type="text/javascript"
+    src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+  ></script> -->
+</html>
+
+<object
+  type="application/x-qt-plugin"
+  height="1"
+  width="1"
+  id="MainInteractor"
+></object>
+<script>
+  /**
+   * 算量平台接口列表：这里是汇总，具体实现接口的方法名称，传递参数，返回结果以及方法的实现效果都在具体代码实现的注释中
+   * 1. 拖拽弹窗容器:moveWindow
+   * 2. 弹窗:popupWindow
+   * 3. 登录:login
+   * 4. 登出:logout
+   * 5. 浏览器打开外链:loadUrlInBrowser
+   * 6. 获取基本信息:getInfo
+   * 7. 切换容器:switchNavigation
+   * 8. 隐藏弹窗:hideWindow
+   * 9. 显示弹窗:showWindow
+   * 10. 指定弹窗是否存在:isExistWindow
+   * 11. 容器通信:notify
+   * 12. 注册监听容器通信:registerCallBack
+   *     1. 登出事件（容器内部指定）:LoginInCallBack
+   *     2. 登录事件（容器内部指定）:LoginOutCallBack
+   * 13. 刷新容器:reload
+   * 14. 清除缓存:clearCache
+   * 15. 切换用户:changeUser
+   * 16. 广播:broadcast
+   */
+
+  var MainInteractor = null;
+
+  window.onload = function() {
+    new QWebChannel(qt.webChannelTransport, channel => {
+      console.log(channel);
+      MainInteractor = channel.objects["MicroCommunityInteractor"];
+      console.log(MainInteractor);
+      /**
+       * 容器注册事件监听
+       * 注意：1. 当同个事件名被注册多次的情况下，后一个覆盖前一个
+       *      2. 根据关键字注册回调函数，目前软件主动发出的事件包括登录成功，登出成功
+       *
+       * 第一个参数：监听事件名，目前软件主动发出的事件包括登录成功（LoginInCallBack），登出成功（LoginOutCallBack）
+       *            也可以是网页自定义的事件名称（changeCredit）
+       * 第二个参数：触发的回调方法，是网页内部定义的方法，方法可以有参数
+       *
+       */
+      // 注册登陆成功事件监听
+      MainInteractor.registerCallBack("LoginInCallBack", "onJSLoginSucess");
+      // 注册登出成功事件监听
+      MainInteractor.registerCallBack("LoginOutCallBack", "onJSLogOut");
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack("changeCredit", "onJSChangeCredit");
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack(
+        "changeBroadcastCredit",
+        "onJSchangeBroadcastCredit"
+      );
+      // 注册自定义事件监听（测试同个事件名被注册多次的情况）
+      MainInteractor.registerCallBack(
+        "changeBroadcastCredit",
+        "onJSchangeBroadcastCredit2"
+      );
+    });
+  };
+  // 登出成功触发的方法
+  function onJSLogOut(strArg) {
+    console.log("登出成功:", strArg);
+  }
+  // 登陆成功触发的方法
+  function onJSLoginSucess(strArg) {
+    console.log("登录成功:", strArg);
+  }
+  // changeCredit事件触发的方法
+  function onJSChangeCredit(strArg) {
+    document.getElementById("credit").innerHTML =
+      "当前积分：" + JSON.parse(strArg).credit;
+  }
+  // changeBroadcastCredit事件触发的方法
+  function onJSchangeBroadcastCredit(strArg) {
+    document.getElementById("broadcastCredit").innerHTML =
+      "当前广播积分（这个广播积分改变就说明registerCallBack接口有问题）：" +
+      JSON.parse(strArg).broadcastCredit;
+  }
+  // changeBroadcastCredit事件触发的方法（测试同个事件名被注册多次的情况）
+  function onJSchangeBroadcastCredit2(strArg) {
+    document.getElementById("broadcastCredit2").innerHTML =
+      "当前广播积分：" + JSON.parse(strArg).broadcastCredit;
+  }
+
+  var BtnLogin = document.getElementById("BtnLogin");
+  BtnLogin.onclick = function() {
+    /**
+     * 登录
+     */
+    MainInteractor.login();
+  };
+
+  var BtnLogout = document.getElementById("BtnLogout");
+  BtnLogout.onclick = function() {
+    /**
+     * 登出
+     */
+    MainInteractor.logout();
+  };
+
+  var BtnBrowser = document.getElementById("BtnBrowser");
+  BtnBrowser.onclick = function() {
+    /**
+     * 浏览器打开外链
+     *
+     * 第一个参数：外链地址
+     */
+    MainInteractor.loadUrlInBrowser("https://www.glodon.com/");
+  };
+
+  // 获取用户信息按钮，需要获取的信息包括：accessToken（用户token）
+  var BtnInfo = document.getElementById("BtnInfo");
+  BtnInfo.onclick = function() {
+    /**
+     * 获取基本信息
+     * 注：返回的结果目前是JSONSTRING格式
+     *
+     * 返回结果需包括：
+     *  1. 用户token（accessToken）
+     *  2. 用户名称（userName）
+     *  3. 软件版本（version）
+     *  4. 软件实际版本（fileVersion）
+     *  5. 系统位数（system64Bit）
+     *  6. windows系统版本（windowSysName）
+     *  7. 软件位数，64 or 32（software64Bit）
+     *  8. 软件名称（productName）
+     *  9. 加密锁号（deviceNum）
+     *  10. 软件的pcode（appcode）
+     */
+    MainInteractor.getInfo(data => {
+      console.log("基本信息（JSONSTRING）:", data);
+      document.getElementById("info").innerHTML = "基本信息:" + data;
+    });
+  };
+
+  var BtnPopupWebWindow = document.getElementById("BtnPopupWebWindow");
+  BtnPopupWebWindow.onclick = function() {
+    var WebWindowParam = {
+      needTitle: true,
+      titleContent: "在线客服——广小二",
+      titleColor: "#009BDB",
+      titleHeight: 50,
+      needTitleMin: true,
+      needTitleMax: true,
+      wgtName: "TestWgt",
+      // url: "https://www.glodon.com/",
+      url:
+        "file:///E:/git/gmp_huangzy/product-ops-activity/common/demo/dialog.html",
+      width: 800,
+      height: 600
+    };
+    var strJsonArg = JSON.stringify(WebWindowParam);
+    /**
+     * 打开弹窗
+     * 注：如果指定的弹窗容器已经存在，只是被隐藏，那么调用这个方法应该是重新显示指定的弹窗容器
+     *
+     * 第一个参数:JSONSTRING格式
+     *   wgtName:弹窗容器名称
+     *   url:加载网址
+     *   width:弹窗容器宽度
+     *   height:弹窗容器高度
+     */
+    MainInteractor.popupWindow(strJsonArg);
+  };
+
+  var BtnShowWebWindow = document.getElementById("BtnShowWebWindow");
+  BtnShowWebWindow.onclick = function() {
+    /**
+     * 显示弹窗
+     *
+     * 第一个参数:弹窗容器名称
+     *
+     * 返回结果：
+     *   true:存在指定弹窗容器并且重新显示
+     *   false:不存在指定的弹窗容器
+     */
+    MainInteractor.showWindow("TestWgt", res => {
+      document.getElementById("info").innerHTML = "显示弹窗:" + res;
+    });
+  };
+
+  var BtnIsExistWebWindow = document.getElementById("BtnIsExistWebWindow");
+  BtnIsExistWebWindow.onclick = function() {
+    /**
+     * 指定弹窗是否存在
+     *
+     * 第一个参数:弹窗容器名称
+     *
+     * 返回结果：
+     *   true:存在指定弹窗容器
+     *   false:不存在指定的弹窗容器
+     */
+    MainInteractor.isExistWindow("TestWgt", res => {
+      document.getElementById("info").innerHTML = "指定弹窗是否存在:" + res;
+    });
+  };
+
+  var BtnHideWebWindow = document.getElementById("BtnHideWebWindow");
+  BtnHideWebWindow.onclick = function() {
+    /**
+     * 隐藏指定弹窗
+     * 注:任何容器调用这个方法都能隐藏指定的弹窗，不一定要容器自身
+     *
+     * 第一个参数:弹窗容器名称
+     *
+     * 返回结果：
+     *   true:存在指定弹窗容器
+     *   false:不存在指定的弹窗容器
+     */
+    MainInteractor.hideWindow("TestWgt", res => {
+      document.getElementById("info").innerHTML = "隐藏指定弹窗:" + res;
+    });
+  };
+
+  var BtnSwitchToWorktable = document.getElementById("BtnSwitchToWorktable");
+  BtnSwitchToWorktable.onclick = function() {
+    /**
+     * 切换到工作台页签
+     *
+     * 第一个参数:容器名称
+     *
+     */
+    MainInteractor.switchNavigation("AppCenter");
+  };
+
+  var BtnRefresh = document.getElementById("BtnRefresh");
+  BtnRefresh.onclick = function() {
+    /**
+     * 刷新容器
+     * 注：刷新的是容器本来应该加载的网址，如果是正确加载的网页，那么直接刷新它，
+     *    如果因为断网等特殊情况导致容器加载了本地静态错误网页，那么刷新的是容器本来应该加载的网址
+     */
+    MainInteractor.reload();
+  };
+
+  var BtnClearCache = document.getElementById("BtnClearCache");
+  BtnClearCache.onclick = function() {
+    /**
+     * 清除容器缓存
+     */
+    MainInteractor.clearCache();
+  };
+
+  var BtnChangeUser = document.getElementById("BtnChangeUser");
+  BtnChangeUser.onclick = function() {
+    /**
+     * 切换用户
+     */
+    MainInteractor.changeUser();
+  };
+</script>

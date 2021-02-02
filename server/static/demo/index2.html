@@ -1,0 +1,166 @@
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <head>
+    <h1>算量平台中间栏demo</h1>
+  </head>
+  <body>
+    <p>
+      <button id="BtnStart">1.启动定时通知右侧边栏demo积分信息</button>
+      <button id="BtnStop">2.关闭定时通知右侧边栏demo积分信息</button>
+      <button id="BtnStartBroadcast">1.启动定时广播积分信息</button>
+      <button id="BtnStopBroadcast">2.关闭定时广播积分信息</button>
+    </p>
+    <p id="info">
+      This is text
+    </p>
+    <p id="credit">
+      当前积分：0
+    </p>
+    <p id="broadcastCredit">
+      当前广播积分：0
+    </p>
+    <p id="broadcastCredit2">
+      当前广播积分（这个广播积分改变就说明broadcast接口有问题）：0
+    </p>
+  </body>
+  <script src="./qwebchannel.js"></script>
+  <!-- <script
+    type="text/javascript"
+    src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+  ></script> -->
+</html>
+
+<object
+  type="application/x-qt-plugin"
+  height="1"
+  width="1"
+  id="MainInteractor"
+></object>
+<script>
+  /**
+   * 算量平台接口列表：这里是汇总，具体实现接口的方法名称，传递参数，返回结果以及方法的实现效果都在具体代码实现的注释中
+   * 1. 拖拽弹窗容器:moveWindow
+   * 2. 弹窗:popupWindow
+   * 3. 登录:login
+   * 4. 登出:logout
+   * 5. 浏览器打开外链:loadUrlInBrowser
+   * 6. 获取基本信息:getInfo
+   * 7. 切换容器:switchNavigation
+   * 8. 隐藏弹窗:hideWindow
+   * 9. 显示弹窗:showWindow
+   * 10. 指定弹窗是否存在:isExistWindow
+   * 11. 容器通信:notify
+   * 12. 注册监听容器通信:registerCallBack
+   *     1. 登出事件（容器内部指定）:LoginInCallBack
+   *     2. 登录事件（容器内部指定）:LoginOutCallBack
+   * 13. 刷新容器:reload
+   * 14. 清除缓存:clearCache
+   * 15. 切换用户:changeUser
+   * 16. 广播:broadcast
+   */
+
+  var MainInteractor = null;
+  var timer = null;
+  var broadcastTimer = null;
+  var n = 0;
+  var m = 0;
+
+  window.onload = function() {
+    new QWebChannel(qt.webChannelTransport, channel => {
+      MainInteractor = channel.objects["Interactor"];
+      console.log(MainInteractor);
+      /**
+       * 容器注册事件监听
+       * 注意：1. 当同个事件名被注册多次的情况下，后一个覆盖前一个
+       *      2. 根据关键字注册回调函数，目前软件主动发出的事件包括登录成功，登出成功
+       *
+       * 第一个参数：监听事件名，目前软件主动发出的事件包括登录成功（LoginInCallBack），登出成功（LoginOutCallBack）
+       *            也可以是网页自定义的事件名称（changeCredit）
+       * 第二个参数：触发的回调方法，是网页内部定义的方法，方法可以有参数
+       *
+       */
+      // 注册自定义事件监听
+      MainInteractor.registerCallBack(
+        "changeBroadcastCredit",
+        "onJSchangeBroadcastCredit"
+      );
+    });
+  };
+
+  // changeBroadcastCredit事件触发的方法
+  function onJSchangeBroadcastCredit(strArg) {
+    document.getElementById("broadcastCredit2").innerHTML =
+      "当前广播积分（这个广播积分改变就说明broadcast接口有问题）：" +
+      JSON.parse(strArg).broadcastCredit;
+  }
+
+  var BtnStart = document.getElementById("BtnStart");
+  BtnStart.onclick = function() {
+    clearInterval(timer);
+    timer = setInterval(function() {
+      n++;
+      document.getElementById("credit").innerHTML = "当前积分：" + n;
+      /**
+       * 容器之间互相通信
+       *
+       * 第一个参数：目的地容器
+       * 第二个参数：通信的事件名
+       * 第三个参数：通信传递的参数
+       */
+      MainInteractor.notify(
+        "RightDemo",
+        "changeCredit",
+        JSON.stringify({
+          credit: n
+        })
+      );
+      /**
+       * 容器之间互相通信
+       *
+       * 第一个参数：目的地容器
+       * 第二个参数：通信的事件名
+       * 第三个参数：通信传递的参数
+       */
+      MainInteractor.notify(
+        "TestWgt",
+        "changeCredit",
+        JSON.stringify({
+          credit: n
+        })
+      );
+    }, 1000);
+  };
+
+  var BtnStop = document.getElementById("BtnStop");
+  BtnStop.onclick = function() {
+    clearInterval(timer);
+  };
+
+  var BtnStartBroadcast = document.getElementById("BtnStartBroadcast");
+  BtnStartBroadcast.onclick = function() {
+    clearInterval(broadcastTimer);
+    broadcastTimer = setInterval(function() {
+      m++;
+      document.getElementById("broadcastCredit").innerHTML =
+        "当前广播积分：" + m;
+      /**
+       * 容器广播
+       * 注：容器通知除去自己以外的任何容器
+       *
+       * 第一个参数：通信的事件名
+       * 第二个参数：通信传递的参数
+       */
+      MainInteractor.broadcast(
+        "changeBroadcastCredit",
+        JSON.stringify({
+          broadcastCredit: m
+        })
+      );
+    }, 1000);
+  };
+
+  var BtnStopBroadcast = document.getElementById("BtnStopBroadcast");
+  BtnStopBroadcast.onclick = function() {
+    clearInterval(broadcastTimer);
+  };
+</script>

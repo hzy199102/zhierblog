@@ -85,6 +85,7 @@
   </div>
 </template>
 <script>
+import axios from "axios";
 import {
   ScheduleInfo as model_schedule,
   categoryList,
@@ -114,7 +115,13 @@ export default {
   computed: {},
 
   methods: {
-    save() {}
+    save() {
+      axios
+        .post("/schedule/new", this.scheduleInfo.toParams())
+        .then(response => {
+          this.scheduleInfo.calendarId = response.data.message.insertId;
+        });
+    }
   },
 
   created() {},
