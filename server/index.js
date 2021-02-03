@@ -69,7 +69,8 @@ app.use(async (ctx, next) => {
 });
 
 // 静态文件服务
-app.use(static(path.resolve("./static")));
+console.log(path.resolve("./server/static"));
+app.use(static(path.resolve("./server/static")));
 // console.log(path.resolve("./client"));
 
 // 导入路由文件
