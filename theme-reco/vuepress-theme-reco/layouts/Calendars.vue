@@ -15,7 +15,7 @@
             :schedule="popover.schedule"
             :CalendarList="CalendarList"
           ></scheduleInfo>
-          <scheduleNew v-else :CalendarList="CalendarList"></scheduleNew>
+          <scheduleNew v-else :CalendarList="CalendarList" @close="close" @new="createSchedule"></scheduleNew>
         </b-popover>
         <div id="top">葡萄</div>
         <div style="display: flex;">
@@ -74,7 +74,8 @@ export default {
       popover: {
         target: null,
         show: false,
-        schedule: null
+        schedule: null,
+        guide: null
       }
     };
   },
@@ -145,10 +146,18 @@ export default {
         beforeCreateSchedule: e => {
           console.log("beforeCreateSchedule", e);
           // this.saveNewSchedule(e);
+          // Get current view name('day', 'week', 'month')
+          var viewName = this.cal.getViewName();
+          var target = e.guide.guideElement;
+          if (viewName === "month") {
+            target = e.guide.guideElements[e.guide.startCoord[1]];
+          }
+          console.log(target);
           this.popover.target = null;
           this.$nextTick(() => {
             this.popover.schedule = null;
-            this.popover.target = e.guide.guideElement;
+            this.popover.target = target;
+            this.popover.guide = e.guide;
             this.popover.show = true;
           });
         },
@@ -389,6 +398,13 @@ export default {
         this.setRenderRangeText();
         this.setSchedules();
       });
+    },
+    close() {
+      this.popover.show = false;
+      this.popover.guide.clearGuideElement();
+    },
+    createSchedule(schedule) {
+      console.log(schedule);
     }
   },
 

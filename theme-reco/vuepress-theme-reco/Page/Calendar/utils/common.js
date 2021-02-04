@@ -64,6 +64,7 @@ export function getDropdownCalendarType(cal) {
   var type = cal.getViewName();
   var iconClassName;
 
+  console.log("type", type);
   if (type === "day") {
     type = "Daily";
     iconClassName = "calendar-icon ic_view_day";

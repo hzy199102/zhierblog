@@ -323,3 +323,23 @@ export var chance = new Chance();
 :::
 
 至此，`chance`库的实例化对象全局引用成功！
+
+#### 点击日历之后无法取消点击状态
+
+![图片](./img/calendar/20.png)
+
+当我不在使用 calendar 官网的创建 schedule 的官方弹窗之后，即 useCreationPopup：false 之后，就会出现上图的问题，点击状态无法取消，导致无法下次点击！看官网 API 没有有效的信息，于是看 tui-calendar.js 的源码。
+
+1. 先看使用了官网弹窗的 demo，发现一切正常，通过 debug 发现弹窗关闭之后才会触发取消点击状态的效果
+
+2. 先根据 useCreationPopup
+
+![图片](./img/calendar/21.png)
+
+3. 在根据 ScheduleCreationPopup
+
+![图片](./img/calendar/22.png)
+![图片](./img/calendar/23.png)
+![图片](./img/calendar/24.png)
+
+4. 核心就在`clearGuideElement`

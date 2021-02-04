@@ -10,6 +10,9 @@
     <p>
       <button id="BtnHideWebWindow">1.隐藏弹窗</button>
     </p>
+    <p>
+      <button id="BtnCloseWebWindow">1.关闭弹窗</button>
+    </p>
     <p id="info">
       This is text
     </p>
@@ -63,7 +66,8 @@
 
   window.onload = function() {
     new QWebChannel(qt.webChannelTransport, channel => {
-      MainInteractor = channel.objects["Interactor"];
+      console.log(channel.objects);
+      MainInteractor = channel.objects["TestWgt"];
       console.log(MainInteractor);
 
       var move = false; //移动标记
@@ -140,6 +144,23 @@
      */
     MainInteractor.hideWindow("TestWgt", res => {
       document.getElementById("info").innerHTML = "隐藏指定弹窗:" + res;
+    });
+  };
+  var BtnCloseWebWindow = document.getElementById("BtnCloseWebWindow");
+  BtnCloseWebWindow.onclick = function() {
+    console.log(1111);
+    /**
+     * 隐藏指定弹窗
+     * 注:任何容器调用这个方法都能隐藏指定的弹窗，不一定要容器自身
+     *
+     * 第一个参数:弹窗容器名称
+     *
+     * 返回结果：
+     *   true:存在指定弹窗容器
+     *   false:不存在指定的弹窗容器
+     */
+    MainInteractor.closeWindow("TestWgt", res => {
+      document.getElementById("info").innerHTML = "关闭指定弹窗:" + res;
     });
   };
 </script>

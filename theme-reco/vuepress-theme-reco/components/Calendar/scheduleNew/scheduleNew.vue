@@ -1,6 +1,6 @@
 <template>
   <div class="scheduleNew">
-    <b-icon icon="x" aria-hidden="true" class="close-icon"></b-icon>
+    <b-icon icon="x" aria-hidden="true" class="close-icon" @click="close"></b-icon>
     <div class="item_row">
       <label class="item_row_label">日程分类：</label>
       <el-select v-model="scheduleInfo.calendarId" placeholder="请选择">
@@ -115,11 +115,16 @@ export default {
   computed: {},
 
   methods: {
+    close() {
+      this.$emit("close");
+    },
     save() {
       axios
         .post("/schedule/new", this.scheduleInfo.toParams())
         .then(response => {
           this.scheduleInfo.calendarId = response.data.message.insertId;
+          this.$emit("new", this.scheduleInfo);
+          this.$emit("close");
         });
     }
   },
