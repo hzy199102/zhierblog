@@ -123,8 +123,8 @@ export default {
         .post("/schedule/new", this.scheduleInfo.toParams())
         .then(response => {
           this.scheduleInfo.calendarId = response.data.message.insertId;
-          this.$emit("new", this.scheduleInfo);
           this.$emit("close");
+          this.$emit("new", this.scheduleInfo);
         });
     }
   },

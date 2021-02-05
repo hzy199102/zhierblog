@@ -11,11 +11,17 @@
           ref="popover"
         >
           <scheduleInfo
-            v-if="popover.schedule"
+            v-if="popover.schedule.id"
             :schedule="popover.schedule"
             :CalendarList="CalendarList"
           ></scheduleInfo>
-          <scheduleNew v-else :CalendarList="CalendarList" @close="close" @new="createSchedule"></scheduleNew>
+          <scheduleNew
+            v-else
+            :CalendarList="CalendarList"
+            :schedule="popover.schedule"
+            @close="close"
+            @new="createSchedule"
+          ></scheduleNew>
         </b-popover>
         <div id="top">葡萄</div>
         <div style="display: flex;">
@@ -130,7 +136,6 @@ export default {
         // 任何日程
         clickSchedule: e => {
           console.log(e);
-
           this.popover.target = null;
           this.$nextTick(() => {
             this.popover.schedule = e.schedule;
@@ -152,10 +157,12 @@ export default {
           if (viewName === "month") {
             target = e.guide.guideElements[e.guide.startCoord[1]];
           }
-          console.log(target);
+          var schedule = {
+            startAndEnd: [e.start, e.end]
+          };
           this.popover.target = null;
           this.$nextTick(() => {
-            this.popover.schedule = null;
+            this.popover.schedule = schedule;
             this.popover.target = target;
             this.popover.guide = e.guide;
             this.popover.show = true;
@@ -401,7 +408,9 @@ export default {
     },
     close() {
       this.popover.show = false;
-      this.popover.guide.clearGuideElement();
+      setTimeout(() => {
+        this.popover.guide.clearGuideElement();
+      }, 300);
     },
     createSchedule(schedule) {
       console.log(schedule);
