@@ -50,7 +50,6 @@ import Menu from "@theme/components/Calendar/Menu/Menu.vue";
 import scheduleNew from "@theme/components/Calendar/scheduleNew/scheduleNew.vue";
 import scheduleInfo from "@theme/components/Calendar/scheduleInfo/scheduleInfo.vue";
 
-import * as utils_calendars from "@theme/Page/Calendar/utils/calendars.js";
 import * as utils_schedules from "@theme/Page/Calendar/utils/schedules.js";
 import * as utils_common from "@theme/Page/Calendar/utils/common.js";
 
@@ -60,6 +59,8 @@ import "@theme/Page/Calendar/css/icons.css";
 import axios from "axios";
 
 import Calendar from "tui-calendar";
+
+import { ScheduleInfo as model_schedule } from "@theme/model/schedule.js";
 
 export default {
   mixins: [moduleTransitonMixin],
@@ -211,40 +212,8 @@ export default {
         }
       });
     },
-    saveNewSchedule(scheduleData) {
-      var calendar =
-        scheduleData.calendar ||
-        utils_calendars.findCalendar(
-          this.CalendarList,
-          scheduleData.calendarId
-        );
-      var schedule = {
-        id: String(chance),
-        title: scheduleData.title,
-        isAllDay: scheduleData.isAllDay,
-        start: scheduleData.start,
-        end: scheduleData.end,
-        category: scheduleData.isAllDay ? "allday" : "time",
-        dueDateClass: "",
-        color: calendar.color,
-        bgColor: calendar.bgColor,
-        dragBgColor: calendar.bgColor,
-        borderColor: calendar.borderColor,
-        location: scheduleData.location,
-        raw: {
-          class: scheduleData.raw["class"]
-        },
-        state: scheduleData.state
-      };
-      if (calendar) {
-        schedule.calendarId = calendar.id;
-        schedule.color = calendar.color;
-        schedule.bgColor = calendar.bgColor;
-        schedule.borderColor = calendar.borderColor;
-      }
-
-      this.cal.createSchedules([schedule]);
-
+    createSchedule(schedule) {
+      this.cal.createSchedules([schedule.toCalendar(this.CalendarList)]);
       this.refreshScheduleVisibility();
     },
     refreshScheduleVisibility() {
@@ -367,7 +336,7 @@ export default {
       this.cal.changeView(viewName, true);
 
       this.setRenderRangeText();
-      this.setSchedules();
+      this.initSchedules();
     },
     createNewSchedule() {
       var start = new Date();
@@ -392,10 +361,10 @@ export default {
       }
 
       this.setRenderRangeText();
-      this.setSchedules();
+      this.initSchedules();
     },
     init() {
-      axios.get("/calendar/list").then(response => {
+      axios.get(`/calendar/list`).then(response => {
         this.CalendarList = response.data.message.map(item => {
           item.checked = true;
           item.id = String(item.id);
@@ -403,17 +372,37 @@ export default {
         });
         this.initCalendar();
         this.setRenderRangeText();
-        this.setSchedules();
+        this.initSchedules();
+        // this.setSchedules();
       });
+    },
+    initSchedules() {
+      axios
+        .get(
+          `/schedule/list?start=${this.cal
+            .getDateRangeStart()
+            .getTime()}&end=${this.cal.getDateRangeEnd().getTime() +
+            24 * 3600 * 1000}`
+        )
+        .then(response => {
+          this.cal.clear();
+          var list = [];
+          for (var i = 0; i < response.data.message.length; i++) {
+            list.push(
+              new model_schedule(response.data.message[i]).toCalendar(
+                this.CalendarList
+              )
+            );
+          }
+          this.cal.createSchedules(list);
+          this.refreshScheduleVisibility();
+        });
     },
     close() {
       this.popover.show = false;
       setTimeout(() => {
         this.popover.guide.clearGuideElement();
       }, 300);
-    },
-    createSchedule(schedule) {
-      console.log(schedule);
     }
   },
 

@@ -63,12 +63,40 @@ export class ScheduleInfo {
 
     this.state = obj.state || null;
     this.status = obj.status || null;
+
+    if (this.startAndEnd && this.startAndEnd.length === 2) {
+      this.start = new Date(this.startAndEnd[0]).getTime();
+      this.end = new Date(this.startAndEnd[1]).getTime();
+    }
   }
 
   toParams() {
     if (this.startAndEnd && this.startAndEnd.length === 2) {
       this.start = new Date(this.startAndEnd[0]).getTime();
       this.end = new Date(this.startAndEnd[1]).getTime();
+    }
+    return this;
+  }
+
+  toCalendar(CalendarList) {
+    var calendar;
+    CalendarList.forEach(item => {
+      if (item.id === this.calendarId) {
+        calendar = item;
+      }
+    });
+    if (calendar) {
+      this.color = calendar.color;
+      this.bgColor = calendar.bgColor;
+      this.dragBgColor = calendar.bgColor;
+      this.borderColor = calendar.borderColor;
+    }
+    // 里程碑只展示，无法拖拽操作
+    if (this.category === "milestone") {
+      this.color = this.bgColor;
+      this.bgColor = "transparent";
+      this.dragBgColor = "transparent";
+      this.borderColor = "transparent";
     }
     return this;
   }

@@ -71,7 +71,15 @@ const schedule = [
 ];
 
 router.get("/schedule/list", async ctx => {
-  var sql = "SELECT * FROM schedule";
+  console.log(ctx.query);
+  var sql = "SELECT * FROM schedule where 1=1";
+  if (ctx.query.start) {
+    sql += ` and start >= ${ctx.query.start}`;
+  }
+  if (ctx.query.end) {
+    sql += ` and end < ${ctx.query.end}`;
+  }
+  console.log(sql);
   var result = await dbFuc_list(sql);
 
   ctx.body = {

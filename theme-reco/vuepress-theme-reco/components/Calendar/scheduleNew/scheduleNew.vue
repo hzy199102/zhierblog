@@ -119,10 +119,11 @@ export default {
       this.$emit("close");
     },
     save() {
+      // 调用toParams方法时，自动补全的所有参数，比如start，end
       axios
         .post("/schedule/new", this.scheduleInfo.toParams())
         .then(response => {
-          this.scheduleInfo.calendarId = response.data.message.insertId;
+          this.scheduleInfo.id = response.data.message.insertId;
           this.$emit("close");
           this.$emit("new", this.scheduleInfo);
         });
